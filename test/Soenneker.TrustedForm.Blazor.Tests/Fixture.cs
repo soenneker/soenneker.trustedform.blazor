@@ -29,6 +29,6 @@ public sealed class Fixture : UnitFixture
         IConfiguration config = TestUtil.BuildConfig();
         services.AddSingleton(config);
 
-        services.AddTrustedFormBlazorInteropAsScoped();
+        services.AddTrustedFormInteropAsScoped();
     }
 }

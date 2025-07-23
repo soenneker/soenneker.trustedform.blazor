@@ -33,7 +33,7 @@ public sealed class Program
                 BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
             });
 
-            builder.Services.AddTrustedFormBlazorInteropAsScoped();
+            builder.Services.AddTrustedFormInteropAsScoped();
 
             builder.Services
                 .AddBlazorise()

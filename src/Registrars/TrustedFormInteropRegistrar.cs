@@ -13,7 +13,7 @@ public static class TrustedFormInteropRegistrar
     /// <summary>
     /// Adds <see cref="ITrustedFormInterop"/> as a scoped service. <para/>
     /// </summary>
-    public static IServiceCollection AddTrustedFormBlazorInteropAsScoped(this IServiceCollection services)
+    public static IServiceCollection AddTrustedFormInteropAsScoped(this IServiceCollection services)
     {
         services.AddResourceLoaderAsScoped().TryAddScoped<ITrustedFormInterop, TrustedFormInterop>();
 
