@@ -21,7 +21,7 @@ public sealed class TrustedFormConfiguration
     public bool Sandbox { get; set; } = false;
 
     /// <summary>
-    /// Whether to use tagged consent. Default is false.
+    /// Whether to use tagged consent. Default is true.
     /// </summary>
-    public bool UseTaggedConsent { get; set; } = false;
+    public bool UseTaggedConsent { get; set; } = true;
 } 

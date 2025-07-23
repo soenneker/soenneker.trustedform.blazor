@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using Microsoft.Extensions.Logging
+@using Soenneker.TrustedForm.Blazor.Options
 
 @inject ILogger<Index> Logger
 
@@ -7,6 +8,8 @@
 <h1>Soenneker.TrustedForm.Blazor demo</h1>
 <p>This page demonstrates some of the common usages for the interop library.</p>
 <br />
+
+<TrustedForm Configuration="new TrustedFormConfiguration()"></TrustedForm>
 
 <hr />
 
