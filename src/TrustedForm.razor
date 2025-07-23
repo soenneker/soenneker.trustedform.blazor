@@ -1,0 +1,86 @@
+@using System.Threading
+@using Microsoft.JSInterop
+@using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Extensions.Task
+@using Soenneker.Extensions.ValueTask
+@using Soenneker.TrustedForm.Blazor.Abstract
+@using Soenneker.TrustedForm.Blazor.Options
+@using Soenneker.Extensions.String;
+
+@inject ITrustedFormInterop TrustedFormInterop
+
+@implements ITrustedForm
+
+<div id="@_elementId" @attributes="Attributes" ></div>
+
+@code {
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object?>? Attributes { get; set; }
+
+    private DotNetObjectReference<TrustedForm>? _dotNetReference;
+    private readonly CancellationTokenSource _cTs = new();
+    private readonly string _elementId = $"trustedform-{Guid.NewGuid()}";
+
+    private bool _initialized;
+    private bool _isCreated;
+    private bool _shouldRender = true;
+
+    [Parameter]
+    public EventCallback OnLoad { get; set; }
+
+    [Parameter]
+    public TrustedFormConfiguration Configuration { get; set; } = new();
+
+    protected override bool ShouldRender() => _shouldRender;
+
+    protected override void OnInitialized() => _dotNetReference = DotNetObjectReference.Create(this);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_isCreated)
+        {
+            await Create(_cTs.Token).NoSync();
+        }
+    }
+
+    private async ValueTask Create(CancellationToken cancellationToken)
+    {
+        if (_initialized)
+            return;
+
+        if (Configuration.Field.IsNullOrWhiteSpace())
+            throw new Exception("TrustedFormConfiguration Field is required.");
+
+        _initialized = true;
+
+        await TrustedFormInterop.Init(_elementId, Configuration, _dotNetReference!, cancellationToken).NoSync();
+        await TrustedFormInterop.CreateObserver(_elementId, cancellationToken).NoSync();
+
+        _isCreated = true;
+        _shouldRender = false;
+    }
+
+    [JSInvokable]
+    public Task OnLoadCallback()
+    {
+        return OnLoad.InvokeIfHasDelegate();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        GC.SuppressFinalize(this);
+
+        if (!_cTs.IsCancellationRequested)
+        {
+            await _cTs.CancelAsync().NoSync();
+            _cTs.Dispose();
+        }
+
+        _initialized = false;
+        _isCreated = false;
+
+        _dotNetReference?.Dispose();
+    }
+
+}
