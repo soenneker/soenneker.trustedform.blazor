@@ -12,6 +12,11 @@
 
 <div id="@_elementId" @attributes="Attributes" ></div>
 
+@if (Configuration.IncludeForm)
+{
+    <form></form> 
+}
+
 @code {
 
     [Parameter(CaptureUnmatchedValues = true)]

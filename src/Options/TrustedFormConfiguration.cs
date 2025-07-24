@@ -36,4 +36,10 @@ public sealed class TrustedFormConfiguration
     /// </summary>
     [JsonPropertyName("disableRecording")]
     public bool DisableRecording { get; set; } = false;
+
+    /// <summary>
+    /// Includes an arbitrary form element within the TrustedForm component so a cert can be retrieved. This is typically used when a form isn't available.
+    /// </summary>
+    [JsonIgnore]
+    public bool IncludeForm { get; set; }
 } 
