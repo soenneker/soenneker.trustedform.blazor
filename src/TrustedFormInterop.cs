@@ -43,6 +43,25 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
         await _jsRuntime.InvokeVoidAsync($"{_moduleName}.createObserver", cancellationToken, elementId).NoSync();
     }
 
+    public async ValueTask<string?> GetCertUrl(string elementId, CancellationToken cancellationToken = default)
+    {
+        await _scriptInitializer.Init(cancellationToken).NoSync();
+        return await _jsRuntime.InvokeAsync<string?>(
+            $"{_moduleName}.getCertUrl", cancellationToken, elementId);
+    }
+
+    public async ValueTask Stop(string elementId, CancellationToken cancellationToken = default)
+    {
+        await _scriptInitializer.Init(cancellationToken).NoSync();
+        await _jsRuntime.InvokeVoidAsync($"{_moduleName}.stop", cancellationToken, elementId).NoSync();
+    }
+
+    public async ValueTask Start(string elementId, CancellationToken cancellationToken = default)
+    {
+        await _scriptInitializer.Init(cancellationToken).NoSync();
+        await _jsRuntime.InvokeVoidAsync($"{_moduleName}.start", cancellationToken, elementId).NoSync();
+    }
+
     public async ValueTask DisposeAsync()
     {
         await _resourceLoader.DisposeModule(_modulePath).NoSync();

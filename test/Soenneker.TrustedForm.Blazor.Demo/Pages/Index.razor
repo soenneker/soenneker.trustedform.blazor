@@ -1,21 +1,108 @@
 ﻿@page "/"
-@using Microsoft.Extensions.Logging
+@using System.ComponentModel.DataAnnotations
+@using Soenneker.TrustedForm.Blazor
 @using Soenneker.TrustedForm.Blazor.Options
-
-@inject ILogger<Index> Logger
+@using Microsoft.AspNetCore.Components.Forms
 
 <img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" />
 <h1>Soenneker.TrustedForm.Blazor demo</h1>
 <p>This page demonstrates some of the common usages for the interop library.</p>
 <br />
 
-<TrustedForm Configuration="new TrustedFormConfiguration()"></TrustedForm>
+<EditForm Model="_formModel" OnValidSubmit="HandleValidSubmit" >
+    <div class="mb-3" >
+        <label for="name" class="form-label" >Name</label>
+        <InputText id="name" class="form-control" @bind-Value="_formModel.Name" />
+    </div>
+    <div class="mb-3" >
+        <label for="email" class="form-label" >Email</label>
+        <InputText id="email" class="form-control" @bind-Value="_formModel.Email" />
+    </div>
+    <button type="submit" class="btn btn-success" >Submit</button>
+</EditForm>
+
+@if (_formSubmitted)
+{
+    <div class="alert alert-info mt-3" >
+        <b>Form Submitted!</b><br />
+        Name: @_formModel.Name<br />
+        Email: @_formModel.Email
+    </div>
+}
+
+<hr />
+
+<TrustedForm @ref="_trustedFormRef" OnLoad="OnTrustedFormLoaded" Configuration="_trustedFormConfig" ></TrustedForm>
+
+<button @onclick="GetCertUrl" class="btn btn-primary" >Get TrustedForm Cert URL</button>
+<button @onclick="StopTrustedForm" class="btn btn-danger ms-2" >Stop TrustedForm Recording</button>
+
+@if (_certUrl != null)
+{
+    <div class="alert alert-success mt-3" >
+        <b>TrustedForm Cert URL:</b>
+        <div style="word-break: break-all;" >@_certUrl</div>
+    </div>
+}
+@if (_trustedFormStopped)
+{
+    <div class="alert alert-warning mt-3" >
+        <b>TrustedForm recording has been stopped.</b>
+    </div>
+}
 
 <hr />
 
 @code{
+    private TrustedForm? _trustedFormRef;
+    private readonly TrustedFormConfiguration _trustedFormConfig = new();
+    private string? _certUrl;
+    private bool _trustedFormLoaded;
+    private bool _trustedFormStopped;
 
-    protected override void OnInitialized()
+    private readonly DemoFormModel _formModel = new();
+    private bool _formSubmitted = false;
+
+    private async Task StopTrustedForm()
     {
+        if (_trustedFormRef is not null)
+        {
+            await _trustedFormRef.Stop();
+            _trustedFormStopped = true;
+            StateHasChanged();
+        }
     }
+
+    private void OnTrustedFormLoaded()
+    {
+        _trustedFormLoaded = true;
+        _certUrl = null;
+        _trustedFormStopped = false;
+        StateHasChanged();
+    }
+
+    private async Task GetCertUrl()
+    {
+        if (_trustedFormRef is not null)
+        {
+            _certUrl = await _trustedFormRef.GetCertUrl();
+            StateHasChanged();
+        }
+    }
+
+    private void HandleValidSubmit()
+    {
+        _formSubmitted = true;
+    }
+
+    public class DemoFormModel
+    {
+        [Required]
+        public string? Name { get; set; }
+
+        [Required]
+        [EmailAddress]
+        public string? Email { get; set; }
+    }
+
 }

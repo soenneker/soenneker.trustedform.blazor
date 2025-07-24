@@ -9,11 +9,15 @@
 
         // Build query string from configuration
         const params = [
-            `field=${encodeURIComponent(configuration.Field ?? 'xxTrustedFormCertUrl')}`,
-            `invert_field_sensitivity=${configuration.InvertFieldSensitivity ? 'true' : 'false'}`,
-            `sandbox=${configuration.Sandbox ? 'true' : 'false'}`,
-            `use_tagged_consent=${configuration.UseTaggedConsent ? 'true' : 'false'}`
+            `field=${encodeURIComponent(configuration.field)}`,
+            `invert_field_sensitivity=${configuration.invertFieldSensitivity ? 'true' : 'false'}`,
+            `sandbox=${configuration.sandbox ? 'true' : 'false'}`,
+            `use_tagged_consent=${configuration.useTaggedConsent ? 'true' : 'false'}`
         ];
+
+        if (configuration.disableRecording === true) {
+            params.push('disable_recording=true');
+        }
 
         const src =
             (window.location.protocol === 'https:' ? 'https' : 'http') +
@@ -38,7 +42,8 @@
 
         this.instances[elementId] = {
             dotNetCallback,
-            isLoaded: true
+            isLoaded: true,
+            fieldId: configuration.field
         };
     }
 
@@ -66,6 +71,35 @@
         }
 
         return observer;
+    }
+
+    getCertUrl(elementId) {
+        // Try to find the cert field inside the element
+        const instance = this.instances[elementId];
+
+        if (!instance)
+            return null;
+
+        // Default field name
+        const fieldId = instance.fieldId;
+        const input = document.getElementById(fieldId + "_0");
+
+        if (input && input.value)
+            return input.value;
+
+        if (input && input.textContent)
+            return input.textContent;
+
+        return null;
+    }
+
+    start(elementId) {
+        window.trustedFormStartRecording();
+       
+    }
+
+    stop(elementId) {
+        window.trustedFormStopRecording();
     }
 }
 

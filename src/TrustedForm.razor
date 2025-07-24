@@ -5,7 +5,6 @@
 @using Soenneker.Extensions.ValueTask
 @using Soenneker.TrustedForm.Blazor.Abstract
 @using Soenneker.TrustedForm.Blazor.Options
-@using Soenneker.Extensions.String;
 
 @inject ITrustedFormInterop TrustedFormInterop
 
@@ -20,7 +19,8 @@
 
     private DotNetObjectReference<TrustedForm>? _dotNetReference;
     private readonly CancellationTokenSource _cTs = new();
-    private readonly string _elementId = $"trustedform-{Guid.NewGuid()}";
+    private readonly string _elementGuid;
+    private readonly string _elementId;
 
     private bool _initialized;
     private bool _isCreated;
@@ -36,10 +36,18 @@
 
     protected override void OnInitialized() => _dotNetReference = DotNetObjectReference.Create(this);
 
+    public TrustedForm()
+    {
+        _elementGuid = Guid.NewGuid().ToString();
+        _elementId = $"trustedform-{_elementGuid}";
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && !_isCreated)
         {
+            Configuration.Field ??= $"trustedform-field-{_elementGuid}";
+
             await Create(_cTs.Token).NoSync();
         }
     }
@@ -49,9 +57,6 @@
         if (_initialized)
             return;
 
-        if (Configuration.Field.IsNullOrWhiteSpace())
-            throw new Exception("TrustedFormConfiguration Field is required.");
-
         _initialized = true;
 
         await TrustedFormInterop.Init(_elementId, Configuration, _dotNetReference!, cancellationToken).NoSync();
@@ -59,6 +64,33 @@
 
         _isCreated = true;
         _shouldRender = false;
+    }
+
+    public async ValueTask<string?> GetCertUrl(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("TrustedForm must be initialized before calling GetCertUrl.");
+
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(_cTs.Token, cancellationToken);
+        return await TrustedFormInterop.GetCertUrl(_elementId, cts.Token).NoSync();
+    }
+
+    public async ValueTask Stop(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("TrustedForm must be initialized before calling Stop.");
+
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(_cTs.Token, cancellationToken);
+        await TrustedFormInterop.Stop(_elementId, cts.Token).NoSync();
+    }
+
+    public async ValueTask Start(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("TrustedForm must be initialized before calling Start.");
+
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(_cTs.Token, cancellationToken);
+        await TrustedFormInterop.Start(_elementId, cts.Token).NoSync();
     }
 
     [JSInvokable]

@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components;
+using System;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
 
 namespace Soenneker.TrustedForm.Blazor.Abstract;
 
@@ -18,4 +19,6 @@ public interface ITrustedForm : IAsyncDisposable
     /// Callback from JavaScript indicating that TrustedForm is fully loaded and ready.
     /// </summary>
     Task OnLoadCallback();
+
+    ValueTask<string?> GetCertUrl(CancellationToken cancellationToken = default);
 }
