@@ -28,12 +28,12 @@ public interface ITrustedFormInterop : IAsyncDisposable
     ValueTask<string?> GetCertUrl(string elementId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Stops TrustedForm recording for the given element.
+    /// Stops TrustedForm recording.
     /// </summary>
-    ValueTask Stop(string elementId, CancellationToken cancellationToken = default);
+    ValueTask Stop(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Starts TrustedForm recording for the given element.
+    /// Starts TrustedForm recording.
     /// </summary>
-    ValueTask Start(string elementId, CancellationToken cancellationToken = default);
+    ValueTask Start(CancellationToken cancellationToken = default);
 }

@@ -2,9 +2,6 @@
 	"folders": [
 		{
 			"path": "."
-		},
-		{
-			"path": "../../Blazor/soenneker.blazor.clarity"
 		}
 	],
 	"settings": {}

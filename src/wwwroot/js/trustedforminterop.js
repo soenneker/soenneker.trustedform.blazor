@@ -93,12 +93,11 @@
         return null;
     }
 
-    start(elementId) {
+    start() {
         window.trustedFormStartRecording();
-       
     }
 
-    stop(elementId) {
+    stop() {
         window.trustedFormStopRecording();
     }
 }

@@ -86,7 +86,7 @@
             throw new InvalidOperationException("TrustedForm must be initialized before calling Stop.");
 
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(_cTs.Token, cancellationToken);
-        await TrustedFormInterop.Stop(_elementId, cts.Token).NoSync();
+        await TrustedFormInterop.Stop(cts.Token).NoSync();
     }
 
     public async ValueTask Start(CancellationToken cancellationToken = default)
@@ -95,7 +95,7 @@
             throw new InvalidOperationException("TrustedForm must be initialized before calling Start.");
 
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(_cTs.Token, cancellationToken);
-        await TrustedFormInterop.Start(_elementId, cts.Token).NoSync();
+        await TrustedFormInterop.Start(cts.Token).NoSync();
     }
 
     [JSInvokable]
