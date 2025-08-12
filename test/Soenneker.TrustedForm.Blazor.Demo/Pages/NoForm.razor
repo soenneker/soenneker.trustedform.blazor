@@ -2,37 +2,104 @@
 @using Soenneker.TrustedForm.Blazor
 @using Soenneker.TrustedForm.Blazor.Options
 
-<img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" />
-<h1>Soenneker.TrustedForm.Blazor demo</h1>
-<p>This page demonstrates some of the common usages for the interop library.</p>
-<br />
-
-<hr />
-
-<TrustedForm @ref="_trustedFormRef" OnLoad="OnTrustedFormLoaded" Configuration="_trustedFormConfig" ></TrustedForm>
-
-<button @onclick="GetCertUrl" class="btn btn-primary" >Get TrustedForm Cert URL</button>
-<button @onclick="StopTrustedForm" class="btn btn-danger ms-2" >Stop TrustedForm Recording</button>
-
-@if (_certUrl != null)
-{
-    <div class="alert alert-success mt-3" >
-        <b>TrustedForm Cert URL:</b>
-        <div style="word-break: break-all;" >@_certUrl</div>
+<div class="header" >
+    <div class="header-content" >
+        <div class="logo" >📄</div>
+        <h1>TrustedForm No-Form Demo</h1>
+        <p>Demonstrating TrustedForm integration without traditional form elements. Perfect for single-page applications and dynamic content.</p>
     </div>
-}
-@if (_trustedFormStopped)
-{
-    <div class="alert alert-warning mt-3" >
-        <b>TrustedForm recording has been stopped.</b>
+</div>
+
+<div class="content" >
+    <!-- Status Overview -->
+    <div class="section fade-in" >
+        <h2 class="section-title" >System Status</h2>
+        <div class="status-grid" >
+            <div class="status-card @(_trustedFormLoaded ? "active" : "inactive")" >
+                <div class="status-icon" >@(_trustedFormLoaded ? "✅" : "⏳")</div>
+                <div class="status-label" >TrustedForm Status</div>
+                <div class="status-value" >@(_trustedFormLoaded ? "Ready" : "Loading...")</div>
+            </div>
+            <div class="status-card @(_trustedFormRef?.IsRecording() == true ? "active" : "inactive")" >
+                <div class="status-icon" >@(_trustedFormRef?.IsRecording() == true ? "🔴" : "⏸️")</div>
+                <div class="status-label" >Recording State</div>
+                <div class="status-value" >@(_trustedFormRef?.IsRecording() == true ? "Active" : "Inactive")</div>
+            </div>
+            <div class="status-card @(_certUrl != null ? "active" : "inactive")" >
+                <div class="status-icon" >@(_certUrl != null ? "📋" : "📄")</div>
+                <div class="status-label" >Cert URL</div>
+                <div class="status-value" >@(_certUrl != null ? "Available" : "Not Generated")</div>
+            </div>
+        </div>
     </div>
-}
 
-<hr />
+    <!-- TrustedForm Integration -->
+    <div class="section fade-in" >
+        <h2 class="section-title" >TrustedForm Integration</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem;" >This page demonstrates TrustedForm integration without traditional form elements. The component automatically includes a form element when <code>IncludeForm = true</code> is set in the configuration.</p>
 
-@code{
+        <TrustedForm @ref="_trustedFormRef" OnLoad="OnTrustedFormLoaded" Configuration="_trustedFormConfig" />
+
+        <div class="btn-group" >
+            <button @onclick="GetCertUrl" class="btn btn-primary" disabled="@(!_trustedFormLoaded)" >
+                <span>🔗</span>
+                Get Cert URL
+            </button>
+            <button @onclick="StartIfNotRunning" class="btn btn-success" disabled="@(!_trustedFormLoaded)" >
+                <span>▶️</span>
+                Start Recording
+            </button>
+            <button @onclick="StopTrustedForm" class="btn btn-danger" disabled="@(!_trustedFormLoaded)" >
+                <span>⏹️</span>
+                Stop Recording
+            </button>
+        </div>
+
+        @if (_certUrl != null)
+        {
+            <div class="alert alert-info slide-in" >
+                <div class="alert-title" >🔗 TrustedForm Certification URL</div>
+                <div class="code-block" style="margin-top: 1rem; word-break: break-all; font-size: 0.75rem;" >
+                    @_certUrl
+                </div>
+            </div>
+        }
+
+        @if (_trustedFormStopped)
+        {
+            <div class="alert alert-warning slide-in" >
+                <div class="alert-title" >⏸️ Recording Stopped</div>
+                TrustedForm recording has been successfully stopped. You can restart it using the "Start Recording" button.
+            </div>
+        }
+    </div>
+
+    <!-- Use Cases -->
+    <div class="section fade-in" >
+        <h2 class="section-title" >Perfect For</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;" >
+            <div class="status-card" >
+                <div class="status-icon" >📱</div>
+                <div class="status-label" >Single Page Apps</div>
+                <div class="status-value" >SPA Integration</div>
+            </div>
+            <div class="status-card" >
+                <div class="status-icon" >🎯</div>
+                <div class="status-label" >Dynamic Content</div>
+                <div class="status-value" >AJAX Forms</div>
+            </div>
+            <div class="status-card" >
+                <div class="status-icon" >⚡</div>
+                <div class="status-label" >Real-time Apps</div>
+                <div class="status-value" >Live Updates</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
     private TrustedForm? _trustedFormRef;
-    private readonly TrustedFormConfiguration _trustedFormConfig = new() { IncludeForm = true };
+    private readonly TrustedFormConfiguration _trustedFormConfig = new() {IncludeForm = true};
     private string? _certUrl;
     private bool _trustedFormLoaded;
     private bool _trustedFormStopped;
@@ -43,6 +110,16 @@
         {
             await _trustedFormRef.Stop();
             _trustedFormStopped = true;
+            StateHasChanged();
+        }
+    }
+
+    private async Task StartIfNotRunning()
+    {
+        if (_trustedFormRef is not null)
+        {
+            await _trustedFormRef.StartIfNotRunning();
+            _trustedFormStopped = false;
             StateHasChanged();
         }
     }
@@ -63,4 +140,5 @@
             StateHasChanged();
         }
     }
+
 }

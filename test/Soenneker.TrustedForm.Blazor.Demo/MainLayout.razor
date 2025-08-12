@@ -1,5 +1,30 @@
 ﻿@inherits LayoutComponentBase
 
-<main>
-    @Body
-</main>
+<div class="container">
+    <nav class="nav-bar">
+        <div class="nav-content">
+            <div class="nav-brand">
+                <span class="nav-logo">🔒</span>
+                <span class="nav-title">TrustedForm Demo</span>
+            </div>
+            <div class="nav-links">
+                <Anchor To="/" class="nav-link">
+                    <span>📝</span>
+                    Form Demo
+                </Anchor>
+                <Anchor To="/no-form" class="nav-link)">
+                    <span>📄</span>
+                    No-Form Demo
+                </Anchor>
+            </div>
+        </div>
+    </nav>
+    
+    <main class="main-content">
+        @Body
+    </main>
+</div>
+
+@code {
+    [Inject] private NavigationManager UriHelper { get; set; } = default!;
+}

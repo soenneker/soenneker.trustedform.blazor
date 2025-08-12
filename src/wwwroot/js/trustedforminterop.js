@@ -3,9 +3,15 @@
         this.instances = {};
     }
 
-    init(elementId, configuration, dotNetCallback) {
-        if (this.instances[elementId]?.isLoaded)
-            return;
+    async loadTrustedFormScript(configuration) {
+        // Remove any existing TrustedForm scripts
+        const existingScripts = document.querySelectorAll('script[src*="api.trustedform.com/trustedform.js"]');
+        existingScripts.forEach(script => script.remove());
+
+        // Clean up TrustedForm global variables
+        if (window.trustedForm) {
+            delete window.trustedForm;
+        }
 
         // Build query string from configuration
         const params = [
@@ -25,26 +31,37 @@
             params.join('&') +
             '&l=' + (new Date().getTime() + Math.random());
 
-        // Inject the TrustedForm script
-        (function () {
-            var tf = document.createElement('script');
+        // Load the TrustedForm script
+        return new Promise((resolve, reject) => {
+            const tf = document.createElement('script');
             tf.type = 'text/javascript';
             tf.async = true;
             tf.src = src;
-            tf.onload = function() {
-                if (dotNetCallback) {
-                    dotNetCallback.invokeMethodAsync('OnLoadCallback');
-                }
-            };
-            var s = document.getElementsByTagName('script')[0];
+            tf.onload = () => resolve();
+            tf.onerror = () => reject(new Error('Failed to load TrustedForm script'));
+            
+            const s = document.getElementsByTagName('script')[0];
             s.parentNode.insertBefore(tf, s);
-        })();
+        });
+    }
+
+    async init(elementId, configuration, dotNetCallback) {
+        if (this.instances[elementId]?.isLoaded)
+            return;
+
+        // Load the TrustedForm script for this configuration
+        await this.loadTrustedFormScript(configuration);
 
         this.instances[elementId] = {
             dotNetCallback,
             isLoaded: true,
             fieldId: configuration.field
         };
+
+        // Call the callback after script is loaded
+        if (dotNetCallback) {
+            dotNetCallback.invokeMethodAsync('OnLoadCallback');
+        }
     }
 
     createObserver(elementId) {
@@ -57,10 +74,8 @@
                 Array.from(m.removedNodes).includes(target)
             );
             if (removed) {
-                // Clean up if needed
-                if (this.instances[elementId]) {
-                    delete this.instances[elementId];
-                }
+                // Clean up the instance and its hidden field
+                this.removeInstance(elementId);
             }
         });
 
@@ -74,13 +89,13 @@
     }
 
     getCertUrl(elementId) {
-        // Try to find the cert field inside the element
+        // Try to find the cert field for this instance
         const instance = this.instances[elementId];
 
         if (!instance)
             return null;
 
-        // Default field name
+        // Get the field for this specific instance
         const fieldId = instance.fieldId;
         const input = document.getElementById(fieldId + "_0");
 
