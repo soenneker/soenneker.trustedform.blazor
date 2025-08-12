@@ -31,7 +31,8 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
         });
     }
 
-    public async ValueTask Init(string elementId, TrustedFormConfiguration configuration, DotNetObjectReference<TrustedForm> dotNetCallback, CancellationToken cancellationToken = default)
+    public async ValueTask Init(string elementId, TrustedFormConfiguration configuration, DotNetObjectReference<TrustedForm> dotNetCallback,
+        CancellationToken cancellationToken = default)
     {
         await _scriptInitializer.Init(cancellationToken).NoSync();
         await _jsRuntime.InvokeVoidAsync($"{_moduleName}.init", cancellationToken, elementId, configuration, dotNetCallback).NoSync();
@@ -46,8 +47,15 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
     public async ValueTask<string?> GetCertUrl(string elementId, CancellationToken cancellationToken = default)
     {
         await _scriptInitializer.Init(cancellationToken).NoSync();
-        return await _jsRuntime.InvokeAsync<string?>(
-            $"{_moduleName}.getCertUrl", cancellationToken, elementId);
+
+        return await _jsRuntime.InvokeAsync<string?>($"{_moduleName}.getCertUrl", cancellationToken, elementId);
+    }
+
+    public async ValueTask<string?> GetCertUrlForSingleElement(CancellationToken cancellationToken = default)
+    {
+        await _scriptInitializer.Init(cancellationToken).NoSync();
+
+        return await _jsRuntime.InvokeAsync<string?>($"{_moduleName}.getCertUrlForSingleElement", cancellationToken);
     }
 
     public async ValueTask Stop(CancellationToken cancellationToken = default)

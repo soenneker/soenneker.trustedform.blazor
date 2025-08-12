@@ -28,6 +28,12 @@ public interface ITrustedFormInterop : IAsyncDisposable
     ValueTask<string?> GetCertUrl(string elementId, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Gets the TrustedForm cert URL when there's only a single element instance.
+    /// Returns null if there are multiple instances or no instances.
+    /// </summary>
+    ValueTask<string?> GetCertUrlForSingleElement(CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Stops TrustedForm recording.
     /// </summary>
     ValueTask Stop(CancellationToken cancellationToken = default);

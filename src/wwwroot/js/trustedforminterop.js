@@ -93,6 +93,19 @@
         return null;
     }
 
+    getCertUrlForSingleElement() {
+        const instanceKeys = Object.keys(this.instances);
+        
+        // If there's exactly one instance, return its cert URL
+        if (instanceKeys.length === 1) {
+            const elementId = instanceKeys[0];
+            return this.getCertUrl(elementId);
+        }
+        
+        // Return null if there are multiple instances or no instances
+        return null;
+    }
+
     start() {
         window.trustedFormStartRecording();
     }

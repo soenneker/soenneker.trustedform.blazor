@@ -1,29 +1,29 @@
 @using System.Threading
 @using Microsoft.JSInterop
 @using Soenneker.Blazor.Extensions.EventCallback
-@using Soenneker.Extensions.Task
+@using Soenneker.Extensions.CancellationTokens
 @using Soenneker.Extensions.ValueTask
 @using Soenneker.TrustedForm.Blazor.Abstract
 @using Soenneker.TrustedForm.Blazor.Options
 
 @inject ITrustedFormInterop TrustedFormInterop
 
+@inherits Soenneker.Quark.Components.Cancellable.CancellableComponent
 @implements ITrustedForm
 
 <div id="@_elementId" @attributes="Attributes" ></div>
 
 @if (Configuration.IncludeForm)
 {
-    <form></form> 
+    <form></form>
 }
 
 @code {
-
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object?>? Attributes { get; set; }
 
     private DotNetObjectReference<TrustedForm>? _dotNetReference;
-    private readonly CancellationTokenSource _cTs = new();
+
     private readonly string _elementGuid;
     private readonly string _elementId;
 
@@ -53,7 +53,7 @@
         {
             Configuration.Field ??= $"trustedform-field-{_elementGuid}";
 
-            await Create(_cTs.Token).NoSync();
+            await Create(CancellationToken).NoSync();
         }
     }
 
@@ -73,29 +73,26 @@
 
     public async ValueTask<string?> GetCertUrl(CancellationToken cancellationToken = default)
     {
-        if (!_initialized)
-            throw new InvalidOperationException("TrustedForm must be initialized before calling GetCertUrl.");
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
-        using var cts = CancellationTokenSource.CreateLinkedTokenSource(_cTs.Token, cancellationToken);
-        return await TrustedFormInterop.GetCertUrl(_elementId, cts.Token).NoSync();
+        using (cts)
+            return await TrustedFormInterop.GetCertUrl(_elementId, linked).NoSync();
     }
 
     public async ValueTask Stop(CancellationToken cancellationToken = default)
     {
-        if (!_initialized)
-            throw new InvalidOperationException("TrustedForm must be initialized before calling Stop.");
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
-        using var cts = CancellationTokenSource.CreateLinkedTokenSource(_cTs.Token, cancellationToken);
-        await TrustedFormInterop.Stop(cts.Token).NoSync();
+        using (cts)
+            await TrustedFormInterop.Stop(linked).NoSync();
     }
 
     public async ValueTask Start(CancellationToken cancellationToken = default)
     {
-        if (!_initialized)
-            throw new InvalidOperationException("TrustedForm must be initialized before calling Start.");
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
-        using var cts = CancellationTokenSource.CreateLinkedTokenSource(_cTs.Token, cancellationToken);
-        await TrustedFormInterop.Start(cts.Token).NoSync();
+        using (cts)
+            await TrustedFormInterop.Start(linked).NoSync();
     }
 
     [JSInvokable]
@@ -104,15 +101,9 @@
         return OnLoad.InvokeIfHasDelegate();
     }
 
-    public async ValueTask DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
-        GC.SuppressFinalize(this);
-
-        if (!_cTs.IsCancellationRequested)
-        {
-            await _cTs.CancelAsync().NoSync();
-            _cTs.Dispose();
-        }
+        await base.DisposeAsync().NoSync();
 
         _initialized = false;
         _isCreated = false;
