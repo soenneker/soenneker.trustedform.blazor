@@ -95,6 +95,19 @@
             await TrustedFormInterop.Start(linked).NoSync();
     }
 
+    public async ValueTask StartIfNotRunning(CancellationToken cancellationToken = default)
+    {
+        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
+
+        using (cts)
+            await TrustedFormInterop.StartIfNotRunning(linked).NoSync();
+    }
+
+    public bool IsRecording()
+    {
+        return TrustedFormInterop.IsRecording();
+    }
+
     [JSInvokable]
     public Task OnLoadCallback()
     {

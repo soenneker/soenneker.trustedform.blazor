@@ -15,6 +15,7 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
     private readonly IJSRuntime _jsRuntime;
     private readonly IResourceLoader _resourceLoader;
     private readonly AsyncSingleton _scriptInitializer;
+    private bool _isRecording;
 
     private const string _modulePath = "Soenneker.TrustedForm.Blazor/js/trustedforminterop.js";
     private const string _moduleName = "TrustedFormInterop";
@@ -62,12 +63,29 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
     {
         await _scriptInitializer.Init(cancellationToken).NoSync();
         await _jsRuntime.InvokeVoidAsync($"{_moduleName}.stop", cancellationToken).NoSync();
+        _isRecording = false;
     }
 
     public async ValueTask Start(CancellationToken cancellationToken = default)
     {
         await _scriptInitializer.Init(cancellationToken).NoSync();
         await _jsRuntime.InvokeVoidAsync($"{_moduleName}.start", cancellationToken).NoSync();
+        _isRecording = true;
+    }
+
+    public async ValueTask StartIfNotRunning(CancellationToken cancellationToken = default)
+    {
+        if (_isRecording)
+            return;
+
+        await _scriptInitializer.Init(cancellationToken).NoSync();
+        await _jsRuntime.InvokeVoidAsync($"{_moduleName}.start", cancellationToken).NoSync();
+        _isRecording = true;
+    }
+
+    public bool IsRecording()
+    {
+        return _isRecording;
     }
 
     public async ValueTask DisposeAsync()

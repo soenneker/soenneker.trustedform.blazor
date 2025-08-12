@@ -42,4 +42,15 @@ public interface ITrustedFormInterop : IAsyncDisposable
     /// Starts TrustedForm recording.
     /// </summary>
     ValueTask Start(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Starts TrustedForm recording if it's not already running.
+    /// </summary>
+    ValueTask StartIfNotRunning(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets the current state of TrustedForm recording.
+    /// </summary>
+    /// <returns>True if recording is currently active, false otherwise.</returns>
+    bool IsRecording();
 }

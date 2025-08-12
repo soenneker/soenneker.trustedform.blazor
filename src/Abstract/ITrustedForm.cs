@@ -21,4 +21,15 @@ public interface ITrustedForm : ICancellableComponent
     Task OnLoadCallback();
 
     ValueTask<string?> GetCertUrl(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Starts TrustedForm recording if it's not already running.
+    /// </summary>
+    ValueTask StartIfNotRunning(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets the current state of TrustedForm recording.
+    /// </summary>
+    /// <returns>True if recording is currently active, false otherwise.</returns>
+    bool IsRecording();
 }
