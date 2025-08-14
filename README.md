@@ -10,3 +10,16 @@
 ```
 dotnet add package Soenneker.TrustedForm.Blazor
 ```
+
+## Configuration
+
+The TrustedForm component supports various configuration options to customize its behavior:
+
+```csharp
+var configuration = new TrustedFormConfiguration
+{
+    Debug = true,
+    IncludeForm = true,
+    Sandbox = true
+};
+```

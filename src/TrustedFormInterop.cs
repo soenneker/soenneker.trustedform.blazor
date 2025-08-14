@@ -88,6 +88,12 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
         return _isRecording;
     }
 
+    public async ValueTask Finalize(string elementId, TrustedFormConfiguration configuration, CancellationToken cancellationToken = default)
+    {
+        await _scriptInitializer.Init(cancellationToken).NoSync();
+        await _jsRuntime.InvokeVoidAsync($"{_moduleName}.finalize", cancellationToken, elementId, configuration).NoSync();
+    }
+
     public async ValueTask DisposeAsync()
     {
         await _resourceLoader.DisposeModule(_modulePath).NoSync();

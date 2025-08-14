@@ -40,6 +40,12 @@ public sealed class TrustedFormConfiguration
     /// <summary>
     /// Includes an arbitrary form element within the TrustedForm component so a cert can be retrieved. This is typically used when a form isn't available. Default is false.
     /// </summary>
-    [JsonIgnore]
+    [JsonPropertyName("includeForm")]
     public bool IncludeForm { get; set; }
+
+    /// <summary>
+    /// Whether to enable debug logging to console. Default is false.
+    /// </summary>
+    [JsonPropertyName("debug")]
+    public bool Debug { get; set; }
 } 

@@ -32,4 +32,10 @@ public interface ITrustedForm : ICancellableComponent
     /// </summary>
     /// <returns>True if recording is currently active, false otherwise.</returns>
     bool IsRecording();
+
+    /// <summary>
+    /// Finalizes the TrustedForm certificate for 90-day retention.
+    /// This extends the retention period from the default 30 days to 90 days.
+    /// </summary>
+    ValueTask Finalize(CancellationToken cancellationToken = default);
 }

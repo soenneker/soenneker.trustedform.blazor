@@ -35,29 +35,31 @@
         </div>
     </div>
 
-    <!-- Contact Form -->
+    <!-- Contact Form with TrustedForm Wrapper -->
     <div class="section fade-in" >
-        <h2 class="section-title" >Contact Form</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 2rem;" >This form demonstrates TrustedForm integration with user input validation and secure data handling.</p>
+        <h2 class="section-title" >Contact Form with TrustedForm Wrapper</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem;" >This demonstrates the wrapper pattern where TrustedForm encapsulates your form fields.</p>
 
-        <EditForm Model="_formModel" OnValidSubmit="HandleValidSubmit" >
-            <div class="form-group" >
-                <label for="name" class="form-label" >Full Name</label>
-                <InputText id="name" class="form-control" @bind-Value="_formModel.Name" placeholder="Enter your full name" />
-                <ValidationMessage For="@(() => _formModel.Name)" />
-            </div>
+        <TrustedForm @ref="_trustedFormRef" OnLoad="OnTrustedFormLoaded" Configuration="_trustedFormConfig" >
+            <EditForm Model="_formModel" OnValidSubmit="HandleValidSubmit" >
+                <div class="form-group" >
+                    <label for="name" class="form-label" >Full Name</label>
+                    <InputText id="name" class="form-control" @bind-Value="_formModel.Name" placeholder="Enter your full name" />
+                    <ValidationMessage For="@(() => _formModel.Name)" />
+                </div>
 
-            <div class="form-group" >
-                <label for="email" class="form-label" >Email Address</label>
-                <InputText id="email" class="form-control" @bind-Value="_formModel.Email" placeholder="Enter your email address" />
-                <ValidationMessage For="@(() => _formModel.Email)" />
-            </div>
+                <div class="form-group" >
+                    <label for="email" class="form-label" >Email Address</label>
+                    <InputText id="email" class="form-control" @bind-Value="_formModel.Email" placeholder="Enter your email address" />
+                    <ValidationMessage For="@(() => _formModel.Email)" />
+                </div>
 
-            <button type="submit" class="btn btn-success" >
-                <span>📤</span>
-                Submit Form
-            </button>
-        </EditForm>
+                <button type="submit" class="btn btn-success" >
+                    <span>📤</span>
+                    Submit Form
+                </button>
+            </EditForm>
+        </TrustedForm>
 
         @if (_formSubmitted)
         {
@@ -73,12 +75,9 @@
         }
     </div>
 
-    <!-- TrustedForm Controls -->
     <div class="section fade-in" >
         <h2 class="section-title" >TrustedForm Controls</h2>
         <p style="color: var(--text-secondary); margin-bottom: 2rem;" >Manage TrustedForm recording and retrieve certification URLs with these powerful controls.</p>
-
-        <TrustedForm @ref="_trustedFormRef" OnLoad="OnTrustedFormLoaded" Configuration="_trustedFormConfig" />
 
         <div class="btn-group" >
             <button @onclick="GetCertUrl" class="btn btn-primary" disabled="@(!_trustedFormLoaded)" >
@@ -93,13 +92,17 @@
                 <span>⏹️</span>
                 Stop Recording
             </button>
+            <button @onclick="FinalizeTrustedForm" class="btn btn-warning" disabled="@(!_trustedFormLoaded)" >
+                <span>🔒</span>
+                Finalize
+            </button>
         </div>
 
         @if (_certUrl != null)
         {
-            <div class="alert alert-info slide-in" >
+            <div >
                 <div class="alert-title" >🔗 TrustedForm Certification URL</div>
-                <div class="code-block" style="margin-top: 1rem; word-break: break-all; font-size: 0.75rem;" >
+                <div class="selectable-code" style="margin-top: 1rem; word-break: break-all; font-size: 0.75rem; background: rgba(0,0,0,0.1); padding: 0.5rem; border-radius: 4px; font-family: monospace;" >
                     @_certUrl
                 </div>
             </div>
@@ -112,15 +115,62 @@
                 TrustedForm recording has been successfully stopped. You can restart it using the "Start Recording" button.
             </div>
         }
+
+        @if (_trustedFormFinalized)
+        {
+            <div class="alert alert-info slide-in" >
+                <div class="alert-title" >🔒 Certificate Finalized</div>
+                TrustedForm certificate has been finalized for 90-day retention.
+            </div>
+        }
     </div>
 </div>
 
+<style>
+    .info-box {
+        background: var(--surface-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+    
+    .info-box ul {
+        margin: 0.5rem 0 0 0;
+        padding-left: 1.5rem;
+    }
+    
+    .info-box li {
+        margin-bottom: 0.25rem;
+    }
+
+    .selectable-code {
+        user-select: text !important;
+        -webkit-user-select: text !important;
+        -moz-user-select: text !important;
+        -ms-user-select: text !important;
+        cursor: text !important;
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+</style>
+
 @code {
     private TrustedForm? _trustedFormRef;
-    private readonly TrustedFormConfiguration _trustedFormConfig = new();
+
+    private readonly TrustedFormConfiguration _trustedFormConfig = new()
+    {
+        Debug = true,
+        IncludeForm = false,
+        Sandbox = true
+    };
+
     private string? _certUrl;
     private bool _trustedFormLoaded;
     private bool _trustedFormStopped;
+    private bool _trustedFormFinalized;
 
     private readonly DemoFormModel _formModel = new();
     private bool _formSubmitted;
@@ -150,6 +200,7 @@
         _trustedFormLoaded = true;
         _certUrl = null;
         _trustedFormStopped = false;
+        _trustedFormFinalized = false;
         StateHasChanged();
     }
 
@@ -158,6 +209,16 @@
         if (_trustedFormRef is not null)
         {
             _certUrl = await _trustedFormRef.GetCertUrl();
+            StateHasChanged();
+        }
+    }
+
+    private async Task FinalizeTrustedForm()
+    {
+        if (_trustedFormRef is not null)
+        {
+            await _trustedFormRef.Finalize();
+            _trustedFormFinalized = true;
             StateHasChanged();
         }
     }

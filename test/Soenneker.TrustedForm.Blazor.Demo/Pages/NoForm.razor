@@ -1,65 +1,77 @@
 ﻿@page "/no-form"
+@using System.ComponentModel.DataAnnotations
 @using Soenneker.TrustedForm.Blazor
 @using Soenneker.TrustedForm.Blazor.Options
+@using Microsoft.AspNetCore.Components.Forms
 
-<div class="header" >
-    <div class="header-content" >
-        <div class="logo" >📄</div>
-        <h1>TrustedForm No-Form Demo</h1>
-        <p>Demonstrating TrustedForm integration without traditional form elements. Perfect for single-page applications and dynamic content.</p>
+<div class="header">
+    <div class="header-content">
+        <div class="logo">🔒</div>
+        <h1>TrustedForm Usage Examples</h1>
+        <p>Examples of different ways to use TrustedForm as a wrapper around content.</p>
     </div>
 </div>
 
-<div class="content" >
+<div class="content">
     <!-- Status Overview -->
-    <div class="section fade-in" >
-        <h2 class="section-title" >System Status</h2>
-        <div class="status-grid" >
-            <div class="status-card @(_trustedFormLoaded ? "active" : "inactive")" >
-                <div class="status-icon" >@(_trustedFormLoaded ? "✅" : "⏳")</div>
-                <div class="status-label" >TrustedForm Status</div>
-                <div class="status-value" >@(_trustedFormLoaded ? "Ready" : "Loading...")</div>
+    <div class="section fade-in">
+        <h2 class="section-title">System Status</h2>
+        <div class="status-grid">
+            <div class="status-card @(_trustedFormLoaded ? "active" : "inactive")">
+                <div class="status-icon">@(_trustedFormLoaded ? "✅" : "⏳")</div>
+                <div class="status-label">TrustedForm Status</div>
+                <div class="status-value">@(_trustedFormLoaded ? "Ready" : "Loading...")</div>
             </div>
-            <div class="status-card @(_trustedFormRef?.IsRecording() == true ? "active" : "inactive")" >
-                <div class="status-icon" >@(_trustedFormRef?.IsRecording() == true ? "🔴" : "⏸️")</div>
-                <div class="status-label" >Recording State</div>
-                <div class="status-value" >@(_trustedFormRef?.IsRecording() == true ? "Active" : "Inactive")</div>
+            <div class="status-card @(_trustedFormRef?.IsRecording() == true ? "active" : "inactive")">
+                <div class="status-icon">@(_trustedFormRef?.IsRecording() == true ? "🔴" : "⏸️")</div>
+                <div class="status-label">Recording State</div>
+                <div class="status-value">@(_trustedFormRef?.IsRecording() == true ? "Active" : "Inactive")</div>
             </div>
-            <div class="status-card @(_certUrl != null ? "active" : "inactive")" >
-                <div class="status-icon" >@(_certUrl != null ? "📋" : "📄")</div>
-                <div class="status-label" >Cert URL</div>
-                <div class="status-value" >@(_certUrl != null ? "Available" : "Not Generated")</div>
+            <div class="status-card @(_certUrl != null ? "active" : "inactive")">
+                <div class="status-icon">@(_certUrl != null ? "📋" : "📄")</div>
+                <div class="status-label">Cert URL</div>
+                <div class="status-value">@(_certUrl != null ? "Available" : "Not Generated")</div>
             </div>
         </div>
     </div>
 
-    <!-- TrustedForm Integration -->
-    <div class="section fade-in" >
-        <h2 class="section-title" >TrustedForm Integration</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 2rem;" >This page demonstrates TrustedForm integration without traditional form elements. The component automatically includes a form element when <code>IncludeForm = true</code> is set in the configuration.</p>
+    <div class="section fade-in">
+        <TrustedForm @ref="_trustedFormRef" OnLoad="OnTrustedFormLoaded" Configuration="_trustedFormConfig">
+            <div class="content-wrapper">
+                <h3>Content Wrapped by TrustedForm</h3>
+                <p>This content is being recorded by TrustedForm without being inside a form element.</p>
+            </div>
+        </TrustedForm>
+    </div>
 
-        <TrustedForm @ref="_trustedFormRef" OnLoad="OnTrustedFormLoaded" Configuration="_trustedFormConfig" />
+    <div class="section fade-in">
+        <h2 class="section-title">TrustedForm Controls</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem;">Manage TrustedForm recording and retrieve certification URLs with these powerful controls.</p>
 
-        <div class="btn-group" >
-            <button @onclick="GetCertUrl" class="btn btn-primary" disabled="@(!_trustedFormLoaded)" >
+        <div class="btn-group">
+            <button @onclick="GetCertUrl" class="btn btn-primary" disabled="@(!_trustedFormLoaded)">
                 <span>🔗</span>
                 Get Cert URL
             </button>
-            <button @onclick="StartIfNotRunning" class="btn btn-success" disabled="@(!_trustedFormLoaded)" >
+            <button @onclick="StartIfNotRunning" class="btn btn-success" disabled="@(!_trustedFormLoaded)">
                 <span>▶️</span>
                 Start Recording
             </button>
-            <button @onclick="StopTrustedForm" class="btn btn-danger" disabled="@(!_trustedFormLoaded)" >
+            <button @onclick="StopTrustedForm" class="btn btn-danger" disabled="@(!_trustedFormLoaded)">
                 <span>⏹️</span>
                 Stop Recording
+            </button>
+            <button @onclick="FinalizeTrustedForm" class="btn btn-warning" disabled="@(!_trustedFormLoaded)">
+                <span>🔒</span>
+                Finalize
             </button>
         </div>
 
         @if (_certUrl != null)
         {
-            <div class="alert alert-info slide-in" >
-                <div class="alert-title" >🔗 TrustedForm Certification URL</div>
-                <div class="code-block" style="margin-top: 1rem; word-break: break-all; font-size: 0.75rem;" >
+            <div>
+                <div class="alert-title">🔗 TrustedForm Certification URL</div>
+                <div class="selectable-code" style="margin-top: 1rem; word-break: break-all; font-size: 0.75rem; background: rgba(0,0,0,0.1); padding: 0.5rem; border-radius: 4px; font-family: monospace;">
                     @_certUrl
                 </div>
             </div>
@@ -67,42 +79,117 @@
 
         @if (_trustedFormStopped)
         {
-            <div class="alert alert-warning slide-in" >
-                <div class="alert-title" >⏸️ Recording Stopped</div>
+            <div class="alert alert-warning slide-in">
+                <div class="alert-title">⏸️ Recording Stopped</div>
                 TrustedForm recording has been successfully stopped. You can restart it using the "Start Recording" button.
             </div>
         }
-    </div>
 
-    <!-- Use Cases -->
-    <div class="section fade-in" >
-        <h2 class="section-title" >Perfect For</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;" >
-            <div class="status-card" >
-                <div class="status-icon" >📱</div>
-                <div class="status-label" >Single Page Apps</div>
-                <div class="status-value" >SPA Integration</div>
+        @if (_trustedFormFinalized)
+        {
+            <div class="alert alert-info slide-in">
+                <div class="alert-title">🔒 Certificate Finalized</div>
+                TrustedForm certificate has been finalized for 90-day retention.
             </div>
-            <div class="status-card" >
-                <div class="status-icon" >🎯</div>
-                <div class="status-label" >Dynamic Content</div>
-                <div class="status-value" >AJAX Forms</div>
-            </div>
-            <div class="status-card" >
-                <div class="status-icon" >⚡</div>
-                <div class="status-label" >Real-time Apps</div>
-                <div class="status-value" >Live Updates</div>
-            </div>
-        </div>
+        }
     </div>
 </div>
 
+<style>
+    .info-box {
+        background: var(--surface-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+
+    .info-box ul {
+        margin: 0.5rem 0 0 0;
+        padding-left: 1.5rem;
+    }
+
+    .info-box li {
+        margin-bottom: 0.25rem;
+    }
+
+    .selectable-code {
+        user-select: text !important;
+        -webkit-user-select: text !important;
+        -moz-user-select: text !important;
+        -ms-user-select: text !important;
+        cursor: text !important;
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+
+    .content-wrapper {
+        padding: 1rem;
+        background: var(--surface-secondary);
+        border-radius: 8px;
+        margin: 1rem 0;
+    }
+
+    .content-wrapper h3 {
+        margin-top: 0;
+        color: var(--text-primary);
+    }
+
+    .config-examples {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .config-example {
+        background: var(--surface-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+
+    .config-example h3 {
+        margin-top: 0;
+        color: var(--text-primary);
+    }
+
+    .code-example {
+        background: var(--surface-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 1rem 0;
+        overflow-x: auto;
+    }
+
+    .code-example pre {
+        margin: 0;
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+
+    .code-example code {
+        color: var(--text-primary);
+    }
+</style>
+
 @code {
     private TrustedForm? _trustedFormRef;
-    private readonly TrustedFormConfiguration _trustedFormConfig = new() {IncludeForm = true};
+    
+    private readonly TrustedFormConfiguration _trustedFormConfig = new() 
+    { 
+        Debug = true,
+        IncludeForm = true,
+        Sandbox = true
+    };
+    
     private string? _certUrl;
     private bool _trustedFormLoaded;
     private bool _trustedFormStopped;
+    private bool _trustedFormFinalized;
 
     private async Task StopTrustedForm()
     {
@@ -129,6 +216,7 @@
         _trustedFormLoaded = true;
         _certUrl = null;
         _trustedFormStopped = false;
+        _trustedFormFinalized = false;
         StateHasChanged();
     }
 
@@ -141,4 +229,13 @@
         }
     }
 
+    private async Task FinalizeTrustedForm()
+    {
+        if (_trustedFormRef is not null)
+        {
+            await _trustedFormRef.Finalize();
+            _trustedFormFinalized = true;
+            StateHasChanged();
+        }
+    }
 }
