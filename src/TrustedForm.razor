@@ -40,7 +40,6 @@
 
     private bool _initialized;
     private bool _isCreated;
-    private bool _shouldRender = true;
     
     private readonly EditContext _ctx = new(new object());
     private static Task OnSubmit() => Task.CompletedTask;
@@ -52,7 +51,8 @@
     [Parameter]
     public TrustedFormConfiguration Configuration { get; set; } = new();
 
-    protected override bool ShouldRender() => _shouldRender;
+    // Allow rendering to ensure child components can update their state
+    protected override bool ShouldRender() => true;
 
     protected override void OnInitialized() => _dotNetReference = DotNetObjectReference.Create(this);
 
@@ -83,7 +83,6 @@
         await TrustedFormInterop.CreateObserver(_elementId, cancellationToken).NoSync();
 
         _isCreated = true;
-        _shouldRender = false;
     }
 
     public async ValueTask<string?> GetCertUrl(CancellationToken cancellationToken = default)
