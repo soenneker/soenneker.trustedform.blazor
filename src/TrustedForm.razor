@@ -1,4 +1,5 @@
 @using System.Threading
+@using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.JSInterop
 @using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Extensions.CancellationTokens
@@ -14,9 +15,10 @@
 <div id="@_elementId" @attributes="Attributes">
     @if (Configuration.IncludeForm)
     {
-        <form id="@(_elementId + "-form")" @onsubmit:preventDefault @onsubmit:stopPropagation>
+        <EditForm EditContext="@_ctx" OnSubmit="OnSubmit" id="@(_elementId + "-form")">
             @ChildContent
-        </form>
+            <button id="@(_elementId + "-submit")" type="submit" style="display:none"></button>
+        </EditForm>
     }
     else
     {
@@ -39,6 +41,10 @@
     private bool _initialized;
     private bool _isCreated;
     private bool _shouldRender = true;
+    
+    private readonly EditContext _ctx = new(new object());
+    private static Task OnSubmit() => Task.CompletedTask;
+
 
     [Parameter]
     public EventCallback OnLoad { get; set; }

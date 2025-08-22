@@ -141,37 +141,35 @@
 
     finalize(elementId, configuration) {
         const instance = this.instances[elementId];
-        const config = configuration || (instance?.configuration ?? { debug: false, includeForm: true });
+        const config = configuration || (instance?.configuration ?? { debug: false });
 
         if (!window.trustedForm || !window.trustedForm.id) {
             this.debugLog(config, 'TrustedForm not available or not initialized.');
             return;
         }
 
-        const formId = elementId + "-form";
-        const targetForm = document.getElementById(formId);
-
-        if (!targetForm) {
-            this.debugLog(config, `No form found (${formId}). If IncludeForm=false, either:
-- dispatch on your own form element, or
-- temporarily render a form wrapper.`);
+        const form = document.getElementById(elementId + '-form');
+        if (!form) {
+            this.debugLog(config, `No form found (${elementId}-form).`);
             return;
         }
 
-        // Ensure native navigation never happens
-        const preventSubmit = (e) => {
+        // Prevent navigation but let TF's submit handler run
+        const preventNav = (e) => {
             e.preventDefault();
-            e.stopPropagation();
-            this.debugLog(config, 'Form submission prevented during TrustedForm finalization');
+            this.debugLog(config, 'Navigation prevented for TF finalization');
         };
-        // one-shot listener
-        targetForm.addEventListener('submit', preventSubmit, { once: true });
+        form.addEventListener('submit', preventNav, { once: true, capture: true });
 
-        this.debugLog(config, 'Dispatching synthetic submit for TrustedForm finalization...');
-        // Fire a cancelable submit that bubbles so TF can hook it
-        const evt = new Event('submit', { bubbles: true, cancelable: true });
-        targetForm.dispatchEvent(evt);
-        this.debugLog(config, 'Submit dispatched.');
+        const btn = document.getElementById(elementId + '-submit');
+        if (!btn) {
+            this.debugLog(config, 'Hidden submit button not found.');
+            return;
+        }
+
+        this.debugLog(config, 'Clicking hidden submit button…');
+        btn.click();
+        this.debugLog(config, 'Hidden submit click dispatched.');
     }
 }
 
