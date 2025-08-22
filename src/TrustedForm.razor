@@ -14,9 +14,8 @@
 <div id="@_elementId" @attributes="Attributes">
     @if (Configuration.IncludeForm)
     {
-        <form id="@(_elementId + "-form")">
+        <form id="@(_elementId + "-form")" @onsubmit:preventDefault @onsubmit:stopPropagation>
             @ChildContent
-            <button type="submit" style="display: none;"></button>
         </form>
     }
     else
