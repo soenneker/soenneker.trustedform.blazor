@@ -9,15 +9,15 @@
 
 @inject ITrustedFormInterop TrustedFormInterop
 
-@inherits Soenneker.Quark.Components.Cancellable.CancellableComponent
+@inherits Soenneker.Quark.Components.Core.Cancellable.CoreCancellableElement
 @implements ITrustedForm
 
-<div id="@_elementId" @attributes="Attributes">
+<div id="@Id" @attributes="Attributes">
     @if (Configuration.IncludeForm)
     {
-        <EditForm EditContext="@_ctx" OnSubmit="OnSubmit" id="@(_elementId + "-form")">
+        <EditForm EditContext="@_ctx" OnSubmit="OnSubmit" id="@(Id + "-form")">
             @ChildContent
-            <button id="@(_elementId + "-submit")" type="submit" style="display:none"></button>
+            <button id="@(Id + "-submit")" type="submit" style="display:none"></button>
         </EditForm>
     }
     else
@@ -27,23 +27,15 @@
 </div>
 
 @code {
-    [Parameter(CaptureUnmatchedValues = true)]
-    public Dictionary<string, object?>? Attributes { get; set; }
-
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
-
     private DotNetObjectReference<TrustedForm>? _dotNetReference;
 
     private readonly string _elementGuid;
-    private readonly string _elementId;
 
     private bool _initialized;
     private bool _isCreated;
     
     private readonly EditContext _ctx = new(new object());
     private static Task OnSubmit() => Task.CompletedTask;
-
 
     [Parameter]
     public EventCallback OnLoad { get; set; }
@@ -59,7 +51,7 @@
     public TrustedForm()
     {
         _elementGuid = Guid.NewGuid().ToString();
-        _elementId = $"trustedform-{_elementGuid}";
+        Id = $"trustedform-{_elementGuid}";
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -79,8 +71,8 @@
 
         _initialized = true;
 
-        await TrustedFormInterop.Init(_elementId, Configuration, _dotNetReference!, cancellationToken).NoSync();
-        await TrustedFormInterop.CreateObserver(_elementId, cancellationToken).NoSync();
+        await TrustedFormInterop.Init(Id!, Configuration, _dotNetReference!, cancellationToken).NoSync();
+        await TrustedFormInterop.CreateObserver(Id!, cancellationToken).NoSync();
 
         _isCreated = true;
     }
@@ -90,7 +82,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            return await TrustedFormInterop.GetCertUrl(_elementId, linked).NoSync();
+            return await TrustedFormInterop.GetCertUrl(Id!, linked).NoSync();
     }
 
     public async ValueTask Stop(CancellationToken cancellationToken = default)
@@ -128,7 +120,7 @@
 
         using (cts)
         {
-            await TrustedFormInterop.Finalize(_elementId, Configuration, linked).NoSync();
+            await TrustedFormInterop.Finalize(Id!, Configuration, linked).NoSync();
         }
     }
 

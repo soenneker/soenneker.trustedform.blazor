@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Soenneker.Quark.Components.Cancellable.Abstract;
 using System.Threading;
 using System.Threading.Tasks;
+using Soenneker.Quark.Components.Core.Cancellable.Abstract;
 
 namespace Soenneker.TrustedForm.Blazor.Abstract;
 
 /// <summary>
 /// Represents the TrustedForm Blazor component with full interop functionality.
 /// </summary>
-public interface ITrustedForm : ICancellableComponent
+public interface ITrustedForm : ICoreCancellableElement
 {
     /// <summary>
     /// Invoked when the TrustedForm widget is ready.
