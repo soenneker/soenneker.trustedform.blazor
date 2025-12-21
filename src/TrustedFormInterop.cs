@@ -1,11 +1,11 @@
-﻿using Soenneker.TrustedForm.Blazor.Abstract;
-using Microsoft.JSInterop;
+﻿using Microsoft.JSInterop;
+using Soenneker.Asyncs.Initializers;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using Soenneker.Extensions.ValueTask;
-using Soenneker.Utils.AsyncSingleton;
+using Soenneker.TrustedForm.Blazor.Abstract;
+using Soenneker.TrustedForm.Blazor.Options;
 using System.Threading;
 using System.Threading.Tasks;
-using Soenneker.TrustedForm.Blazor.Options;
 
 namespace Soenneker.TrustedForm.Blazor;
 
@@ -14,7 +14,7 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
 {
     private readonly IJSRuntime _jsRuntime;
     private readonly IResourceLoader _resourceLoader;
-    private readonly AsyncSingleton _scriptInitializer;
+    private readonly AsyncInitializer _scriptInitializer;
     private bool _isRecording;
 
     private const string _modulePath = "Soenneker.TrustedForm.Blazor/js/trustedforminterop.js";
@@ -25,10 +25,9 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
         _jsRuntime = jSRuntime;
         _resourceLoader = resourceLoader;
 
-        _scriptInitializer = new AsyncSingleton(async (token, _) =>
+        _scriptInitializer = new AsyncInitializer(async token =>
         {
             await _resourceLoader.ImportModuleAndWaitUntilAvailable(_modulePath, _moduleName, 100, token).NoSync();
-            return new object();
         });
     }
 
