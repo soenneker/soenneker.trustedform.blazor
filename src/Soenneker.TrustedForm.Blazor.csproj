@@ -52,6 +52,6 @@
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="4.0.431" />
         <PackageReference Include="Soenneker.Extensions.String" Version="4.0.595" />
         <PackageReference Include="Soenneker.Extensions.CancellationTokens" Version="4.0.7" />
-        <PackageReference Include="Soenneker.Quark.Components.Core.Cancellable" Version="4.0.34" />
+        <PackageReference Include="Soenneker.Quark.Components.Core.Cancellable" Version="4.0.35" />
     </ItemGroup>
 </Project>
