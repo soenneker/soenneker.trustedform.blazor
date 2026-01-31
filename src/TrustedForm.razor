@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.JSInterop
 @using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Dtos.ProblemDetails
 @using Soenneker.Extensions.CancellationTokens
 @using Soenneker.TrustedForm.Blazor.Abstract
 @using Soenneker.TrustedForm.Blazor.Options
@@ -40,6 +41,15 @@
     public EventCallback OnLoad { get; set; }
 
     [Parameter]
+    public ProblemDetailsDto? ProblemDetails { get; set; }
+
+    [Parameter]
+    public EventCallback<ProblemDetailsDto?> ProblemDetailsChanged { get; set; }
+
+    [Parameter]
+    public RenderFragment<ProblemDetailsDto>? ProblemDetailsContent { get; set; }
+
+    [Parameter]
     public TrustedFormConfiguration Configuration { get; set; } = new();
 
     // Allow rendering to ensure child components can update their state
@@ -70,10 +80,24 @@
 
         _initialized = true;
 
-        await TrustedFormInterop.Init(Id!, Configuration, _dotNetReference!, cancellationToken);
-        await TrustedFormInterop.CreateObserver(Id!, cancellationToken);
-
-        _isCreated = true;
+        try
+        {
+            await TrustedFormInterop.Init(Id!, Configuration, _dotNetReference!, cancellationToken);
+            await TrustedFormInterop.CreateObserver(Id!, cancellationToken);
+            await SetProblemDetails(null);
+            _isCreated = true;
+        }
+        catch (Exception ex)
+        {
+            _initialized = false;
+            _isCreated = false;
+            await SetProblemDetails(new ProblemDetailsDto
+            {
+                Title = "TrustedForm failed to initialize",
+                Detail = ex.Message,
+                Status = 500
+            });
+        }
     }
 
     public async ValueTask<string?> GetCertUrl(CancellationToken cancellationToken = default)
@@ -137,6 +161,15 @@
         _isCreated = false;
 
         _dotNetReference?.Dispose();
+    }
+
+    private async ValueTask SetProblemDetails(ProblemDetailsDto? details)
+    {
+        if (ReferenceEquals(ProblemDetails, details))
+            return;
+
+        ProblemDetails = details;
+        await ProblemDetailsChanged.InvokeAsync(details);
     }
 
 }
