@@ -3,7 +3,6 @@
 @using Microsoft.JSInterop
 @using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Extensions.CancellationTokens
-@using Soenneker.Extensions.ValueTask
 @using Soenneker.TrustedForm.Blazor.Abstract
 @using Soenneker.TrustedForm.Blazor.Options
 
@@ -60,7 +59,7 @@
         {
             Configuration.Field ??= $"trustedform-field-{_elementGuid}";
 
-            await Create(CancellationToken).NoSync();
+            await Create(CancellationToken);
         }
     }
 
@@ -71,8 +70,8 @@
 
         _initialized = true;
 
-        await TrustedFormInterop.Init(Id!, Configuration, _dotNetReference!, cancellationToken).NoSync();
-        await TrustedFormInterop.CreateObserver(Id!, cancellationToken).NoSync();
+        await TrustedFormInterop.Init(Id!, Configuration, _dotNetReference!, cancellationToken);
+        await TrustedFormInterop.CreateObserver(Id!, cancellationToken);
 
         _isCreated = true;
     }
@@ -82,7 +81,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            return await TrustedFormInterop.GetCertUrl(Id!, linked).NoSync();
+            return await TrustedFormInterop.GetCertUrl(Id!, linked);
     }
 
     public async ValueTask Stop(CancellationToken cancellationToken = default)
@@ -90,7 +89,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TrustedFormInterop.Stop(linked).NoSync();
+            await TrustedFormInterop.Stop(linked);
     }
 
     public async ValueTask Start(CancellationToken cancellationToken = default)
@@ -98,7 +97,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TrustedFormInterop.Start(linked).NoSync();
+            await TrustedFormInterop.Start(linked);
     }
 
     public async ValueTask StartIfNotRunning(CancellationToken cancellationToken = default)
@@ -106,7 +105,7 @@
         CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
 
         using (cts)
-            await TrustedFormInterop.StartIfNotRunning(linked).NoSync();
+            await TrustedFormInterop.StartIfNotRunning(linked);
     }
 
     public bool IsRecording()
@@ -120,7 +119,7 @@
 
         using (cts)
         {
-            await TrustedFormInterop.Finalize(Id!, Configuration, linked).NoSync();
+            await TrustedFormInterop.Finalize(Id!, Configuration, linked);
         }
     }
 
@@ -132,7 +131,7 @@
 
     public override async ValueTask DisposeAsync()
     {
-        await base.DisposeAsync().NoSync();
+        await base.DisposeAsync();
 
         _initialized = false;
         _isCreated = false;
