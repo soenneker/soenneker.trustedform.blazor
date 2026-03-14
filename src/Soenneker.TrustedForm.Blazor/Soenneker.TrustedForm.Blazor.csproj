@@ -46,7 +46,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1627" />
+        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1628" />
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="4.0.444" />
         <PackageReference Include="Soenneker.Dtos.ProblemDetails" Version="4.0.434" />
         <PackageReference Include="Soenneker.Extensions.String" Version="4.0.660" />
