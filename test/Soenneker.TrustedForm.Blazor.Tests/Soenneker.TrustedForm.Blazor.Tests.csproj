@@ -28,7 +28,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Soenneker.TrustedForm.Blazor.csproj" />
+        <ProjectReference Include="..\..\src\Soenneker.TrustedForm.Blazor\Soenneker.TrustedForm.Blazor.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -29,7 +29,7 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
 
         _scriptInitializer = new AsyncInitializer(async token =>
         {
-            await _resourceLoader.ImportModuleAndWaitUntilAvailable(_modulePath, _moduleName, 100, token);
+            await _resourceLoader.ImportModule(_modulePath, token);
         });
     }
 
