@@ -20,7 +20,6 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
     private bool _isRecording;
 
     private const string _modulePath = "Soenneker.TrustedForm.Blazor/js/trustedforminterop.js";
-    private const string _moduleName = "TrustedFormInterop";
 
     public TrustedFormInterop(IJSRuntime jSRuntime, IResourceLoader resourceLoader)
     {
@@ -41,7 +40,7 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
         using (source)
         {
             await _scriptInitializer.Init(linked);
-            await _jsRuntime.InvokeVoidAsync($"{_moduleName}.init", linked, elementId, configuration, dotNetCallback);
+            await _jsRuntime.InvokeVoidAsync($"TrustedFormInterop.init", linked, elementId, configuration, dotNetCallback);
         }
     }
 
@@ -52,7 +51,7 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
         using (source)
         {
             await _scriptInitializer.Init(linked);
-            await _jsRuntime.InvokeVoidAsync($"{_moduleName}.createObserver", linked, elementId);
+            await _jsRuntime.InvokeVoidAsync($"TrustedFormInterop.createObserver", linked, elementId);
         }
     }
 
@@ -64,7 +63,7 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
         {
             await _scriptInitializer.Init(linked);
 
-            return await _jsRuntime.InvokeAsync<string?>($"{_moduleName}.getCertUrl", linked, elementId);
+            return await _jsRuntime.InvokeAsync<string?>($"TrustedFormInterop.getCertUrl", linked, elementId);
         }
     }
 
@@ -76,7 +75,7 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
         {
             await _scriptInitializer.Init(linked);
 
-            return await _jsRuntime.InvokeAsync<string?>($"{_moduleName}.getCertUrlForSingleElement", linked);
+            return await _jsRuntime.InvokeAsync<string?>($"TrustedFormInterop.getCertUrlForSingleElement", linked);
         }
     }
 
@@ -87,7 +86,7 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
         using (source)
         {
             await _scriptInitializer.Init(linked);
-            await _jsRuntime.InvokeVoidAsync($"{_moduleName}.stop", linked);
+            await _jsRuntime.InvokeVoidAsync($"TrustedFormInterop.stop", linked);
             _isRecording = false;
         }
     }
@@ -99,7 +98,7 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
         using (source)
         {
             await _scriptInitializer.Init(linked);
-            await _jsRuntime.InvokeVoidAsync($"{_moduleName}.start", linked);
+            await _jsRuntime.InvokeVoidAsync($"TrustedFormInterop.start", linked);
             _isRecording = true;
         }
     }
@@ -114,7 +113,7 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
         using (source)
         {
             await _scriptInitializer.Init(linked);
-            await _jsRuntime.InvokeVoidAsync($"{_moduleName}.start", linked);
+            await _jsRuntime.InvokeVoidAsync($"TrustedFormInterop.start", linked);
             _isRecording = true;
         }
     }
@@ -131,7 +130,7 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
         using (source)
         {
             await _scriptInitializer.Init(linked);
-            await _jsRuntime.InvokeVoidAsync($"{_moduleName}.finalize", linked, elementId, configuration);
+            await _jsRuntime.InvokeVoidAsync($"TrustedFormInterop.finalize", linked, elementId, configuration);
         }
     }
 
