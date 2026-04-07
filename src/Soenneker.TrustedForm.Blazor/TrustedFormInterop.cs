@@ -1,6 +1,5 @@
 using Microsoft.JSInterop;
-using Soenneker.Asyncs.Initializers;
-using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
+using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.TrustedForm.Blazor.Abstract;
 using Soenneker.TrustedForm.Blazor.Options;
@@ -13,23 +12,15 @@ namespace Soenneker.TrustedForm.Blazor;
 /// <inheritdoc cref="ITrustedFormInterop"/>
 public sealed class TrustedFormInterop : ITrustedFormInterop
 {
-    private readonly IJSRuntime _jsRuntime;
-    private readonly IResourceLoader _resourceLoader;
-    private readonly AsyncInitializer _scriptInitializer;
+    private readonly IModuleImportUtil _moduleImportUtil;
     private readonly CancellationScope _cancellationScope = new();
     private bool _isRecording;
 
-    private const string _modulePath = "Soenneker.TrustedForm.Blazor/js/trustedforminterop.js";
+    private const string _modulePath = "/_content/Soenneker.TrustedForm.Blazor/js/trustedforminterop.js";
 
-    public TrustedFormInterop(IJSRuntime jSRuntime, IResourceLoader resourceLoader)
+    public TrustedFormInterop(IModuleImportUtil moduleImportUtil)
     {
-        _jsRuntime = jSRuntime;
-        _resourceLoader = resourceLoader;
-
-        _scriptInitializer = new AsyncInitializer(async token =>
-        {
-            await _resourceLoader.ImportModule(_modulePath, token);
-        });
+        _moduleImportUtil = moduleImportUtil;
     }
 
     public async ValueTask Init(string elementId, TrustedFormConfiguration configuration, DotNetObjectReference<TrustedForm> dotNetCallback,
@@ -39,8 +30,8 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
 
         using (source)
         {
-            await _scriptInitializer.Init(linked);
-            await _jsRuntime.InvokeVoidAsync($"TrustedFormInterop.init", linked, elementId, configuration, dotNetCallback);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("init", linked, elementId, configuration, dotNetCallback);
         }
     }
 
@@ -50,8 +41,8 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
 
         using (source)
         {
-            await _scriptInitializer.Init(linked);
-            await _jsRuntime.InvokeVoidAsync($"TrustedFormInterop.createObserver", linked, elementId);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("createObserver", linked, elementId);
         }
     }
 
@@ -61,9 +52,8 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
 
         using (source)
         {
-            await _scriptInitializer.Init(linked);
-
-            return await _jsRuntime.InvokeAsync<string?>($"TrustedFormInterop.getCertUrl", linked, elementId);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            return await module.InvokeAsync<string?>("getCertUrl", linked, elementId);
         }
     }
 
@@ -73,9 +63,8 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
 
         using (source)
         {
-            await _scriptInitializer.Init(linked);
-
-            return await _jsRuntime.InvokeAsync<string?>($"TrustedFormInterop.getCertUrlForSingleElement", linked);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            return await module.InvokeAsync<string?>("getCertUrlForSingleElement", linked);
         }
     }
 
@@ -85,8 +74,8 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
 
         using (source)
         {
-            await _scriptInitializer.Init(linked);
-            await _jsRuntime.InvokeVoidAsync($"TrustedFormInterop.stop", linked);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("stop", linked);
             _isRecording = false;
         }
     }
@@ -97,8 +86,8 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
 
         using (source)
         {
-            await _scriptInitializer.Init(linked);
-            await _jsRuntime.InvokeVoidAsync($"TrustedFormInterop.start", linked);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("start", linked);
             _isRecording = true;
         }
     }
@@ -112,8 +101,8 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
 
         using (source)
         {
-            await _scriptInitializer.Init(linked);
-            await _jsRuntime.InvokeVoidAsync($"TrustedFormInterop.start", linked);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("start", linked);
             _isRecording = true;
         }
     }
@@ -129,15 +118,14 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
 
         using (source)
         {
-            await _scriptInitializer.Init(linked);
-            await _jsRuntime.InvokeVoidAsync($"TrustedFormInterop.finalize", linked, elementId, configuration);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("finalize", linked, elementId, configuration);
         }
     }
 
     public async ValueTask DisposeAsync()
     {
-        await _resourceLoader.DisposeModule(_modulePath);
-        await _scriptInitializer.DisposeAsync();
+        await _moduleImportUtil.DisposeContentModule(_modulePath);
         await _cancellationScope.DisposeAsync();
     }
 }

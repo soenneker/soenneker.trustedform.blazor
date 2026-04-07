@@ -1,176 +1,179 @@
-﻿export class TrustedFormInterop {
-    constructor() {
-        this.instances = {};
-    }
+const instances = {};
 
-    // Helper function to log debug messages only when debug is enabled
-    debugLog(configuration, message, ...args) {
-        if (configuration.debug) {
-            console.log(message, ...args);
-        }
-    }
-
-    async loadTrustedFormScript(configuration) {
-        // Remove any existing TrustedForm scripts
-        const existingScripts = document.querySelectorAll('script[src*="api.trustedform.com/trustedform.js"]');
-        existingScripts.forEach(script => script.remove());
-
-        // Clean up TrustedForm global variables
-        if (window.trustedForm) {
-            delete window.trustedForm;
-        }
-
-        // Build query string from configuration
-        const params = [
-            `field=${encodeURIComponent(configuration.field)}`,
-            `invert_field_sensitivity=${configuration.invertFieldSensitivity ? 'true' : 'false'}`,
-            `sandbox=${configuration.sandbox ? 'true' : 'false'}`,
-            `use_tagged_consent=${configuration.useTaggedConsent ? 'true' : 'false'}`
-        ];
-
-        if (configuration.disableRecording === true) {
-            params.push('disable_recording=true');
-        }
-
-        const src =
-            (window.location.protocol === 'https:' ? 'https' : 'http') +
-            '://api.trustedform.com/trustedform.js?' +
-            params.join('&') +
-            '&l=' + (new Date().getTime() + Math.random());
-
-        // Load the TrustedForm script
-        return new Promise((resolve, reject) => {
-            const tf = document.createElement('script');
-            tf.type = 'text/javascript';
-            tf.async = true;
-            tf.src = src;
-            tf.onload = () => {
-                resolve();
-            };
-            tf.onerror = () => reject(new Error('Failed to load TrustedForm script'));
-            
-            const s = document.getElementsByTagName('script')[0];
-            s.parentNode.insertBefore(tf, s);
-        });
-    }
-
-    async init(elementId, configuration, dotNetCallback) {
-        if (this.instances[elementId]?.isLoaded)
-            return;
-
-        // Load the TrustedForm script for this configuration
-        await this.loadTrustedFormScript(configuration);
-
-        this.instances[elementId] = {
-            dotNetCallback,
-            isLoaded: true,
-            fieldId: configuration.field,
-            configuration: configuration // Store configuration for debug access
-        };
-
-        // Call the callback after script is loaded
-        if (dotNetCallback) {
-            dotNetCallback.invokeMethodAsync('OnLoadCallback');
-        }
-    }
-
-    createObserver(elementId) {
-        const target = document.getElementById(elementId);
-        if (!target || !target.parentNode)
-            return null;
-
-        const observer = new MutationObserver((mutations) => {
-            const removed = mutations.some(m =>
-                Array.from(m.removedNodes).includes(target)
-            );
-            if (removed) {
-                // Clean up the instance and its hidden field
-                this.removeInstance(elementId);
-            }
-        });
-
-        observer.observe(target.parentNode, { childList: true });
-
-        if (this.instances[elementId]) {
-            this.instances[elementId].observer = observer;
-        }
-
-        return observer;
-    }
-
-    getCertUrl(elementId) {
-        // Try to find the cert field for this instance
-        const instance = this.instances[elementId];
-
-        if (!instance)
-            return null;
-
-        // Get the field for this specific instance
-        const fieldId = instance.fieldId;
-        const input = document.getElementById(fieldId + "_0");
-
-        if (input && input.value)
-            return input.value;
-
-        if (input && input.textContent)
-            return input.textContent;
-
-        return null;
-    }
-
-    getCertUrlForSingleElement() {
-        const instanceKeys = Object.keys(this.instances);
-        
-        // If there's exactly one instance, return its cert URL
-        if (instanceKeys.length === 1) {
-            const elementId = instanceKeys[0];
-            return this.getCertUrl(elementId);
-        }
-        
-        // Return null if there are multiple instances or no instances
-        return null;
-    }
-
-    start() {
-        window.trustedFormStartRecording();
-    }
-
-    stop() {
-        window.trustedFormStopRecording();
-    }
-
-    finalize(elementId, configuration) {
-        const instance = this.instances[elementId];
-        const config = configuration || (instance?.configuration ?? { debug: false });
-
-        if (!window.trustedForm || !window.trustedForm.id) {
-            this.debugLog(config, 'TrustedForm not available or not initialized.');
-            return;
-        }
-
-        const form = document.getElementById(elementId + '-form');
-        if (!form) {
-            this.debugLog(config, `No form found (${elementId}-form).`);
-            return;
-        }
-
-        // Prevent navigation but let TF's submit handler run
-        const preventNav = (e) => {
-            e.preventDefault();
-            this.debugLog(config, 'Navigation prevented for TF finalization');
-        };
-        form.addEventListener('submit', preventNav, { once: true, capture: true });
-
-        const btn = document.getElementById(elementId + '-submit');
-        if (!btn) {
-            this.debugLog(config, 'Hidden submit button not found.');
-            return;
-        }
-
-        this.debugLog(config, 'Clicking hidden submit button…');
-        btn.click();
-        this.debugLog(config, 'Hidden submit click dispatched.');
+function debugLog(configuration, message, ...args) {
+    if (configuration?.debug) {
+        console.log(message, ...args);
     }
 }
 
-window.TrustedFormInterop = new TrustedFormInterop();
+function removeTrustedFormScript() {
+    const existingScripts = document.querySelectorAll('script[src*="api.trustedform.com/trustedform.js"]');
+
+    existingScripts.forEach(script => script.remove());
+
+    if (window.trustedForm) {
+        delete window.trustedForm;
+    }
+}
+
+function removeInstance(elementId) {
+    const instance = instances[elementId];
+
+    if (!instance) {
+        return;
+    }
+
+    if (instance.observer) {
+        instance.observer.disconnect();
+    }
+
+    delete instances[elementId];
+}
+
+async function loadTrustedFormScript(configuration) {
+    removeTrustedFormScript();
+
+    const params = [
+        `field=${encodeURIComponent(configuration.field)}`,
+        `invert_field_sensitivity=${configuration.invertFieldSensitivity ? 'true' : 'false'}`,
+        `sandbox=${configuration.sandbox ? 'true' : 'false'}`,
+        `use_tagged_consent=${configuration.useTaggedConsent ? 'true' : 'false'}`
+    ];
+
+    if (configuration.disableRecording === true) {
+        params.push('disable_recording=true');
+    }
+
+    const src =
+        `${window.location.protocol === 'https:' ? 'https' : 'http'}://api.trustedform.com/trustedform.js?${params.join('&')}` +
+        `&l=${new Date().getTime() + Math.random()}`;
+
+    await new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.async = true;
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = () => reject(new Error('Failed to load TrustedForm script'));
+
+        const firstScript = document.getElementsByTagName('script')[0];
+        firstScript.parentNode.insertBefore(script, firstScript);
+    });
+}
+
+export async function init(elementId, configuration, dotNetCallback) {
+    if (instances[elementId]?.isLoaded) {
+        return;
+    }
+
+    await loadTrustedFormScript(configuration);
+
+    instances[elementId] = {
+        configuration,
+        dotNetCallback,
+        fieldId: configuration.field,
+        isLoaded: true,
+        observer: null
+    };
+
+    if (dotNetCallback) {
+        await dotNetCallback.invokeMethodAsync('OnLoadCallback');
+    }
+}
+
+export function createObserver(elementId) {
+    const target = document.getElementById(elementId);
+
+    if (!target || !target.parentNode) {
+        return null;
+    }
+
+    const observer = new MutationObserver(mutations => {
+        const removed = mutations.some(mutation => Array.from(mutation.removedNodes).includes(target));
+
+        if (removed) {
+            removeInstance(elementId);
+        }
+    });
+
+    observer.observe(target.parentNode, { childList: true });
+
+    if (instances[elementId]) {
+        instances[elementId].observer = observer;
+    }
+
+    return observer;
+}
+
+export function getCertUrl(elementId) {
+    const instance = instances[elementId];
+
+    if (!instance) {
+        return null;
+    }
+
+    const input = document.getElementById(`${instance.fieldId}_0`);
+
+    if (input?.value) {
+        return input.value;
+    }
+
+    if (input?.textContent) {
+        return input.textContent;
+    }
+
+    return null;
+}
+
+export function getCertUrlForSingleElement() {
+    const instanceKeys = Object.keys(instances);
+
+    if (instanceKeys.length !== 1) {
+        return null;
+    }
+
+    return getCertUrl(instanceKeys[0]);
+}
+
+export function start() {
+    window.trustedFormStartRecording();
+}
+
+export function stop() {
+    window.trustedFormStopRecording();
+}
+
+export function finalize(elementId, configuration) {
+    const instance = instances[elementId];
+    const config = configuration || instance?.configuration || { debug: false };
+
+    if (!window.trustedForm || !window.trustedForm.id) {
+        debugLog(config, 'TrustedForm not available or not initialized.');
+        return;
+    }
+
+    const form = document.getElementById(`${elementId}-form`);
+
+    if (!form) {
+        debugLog(config, `No form found (${elementId}-form).`);
+        return;
+    }
+
+    const preventNavigation = event => {
+        event.preventDefault();
+        debugLog(config, 'Navigation prevented for TrustedForm finalization.');
+    };
+
+    form.addEventListener('submit', preventNavigation, { capture: true, once: true });
+
+    const button = document.getElementById(`${elementId}-submit`);
+
+    if (!button) {
+        debugLog(config, 'Hidden submit button not found.');
+        return;
+    }
+
+    debugLog(config, 'Clicking hidden submit button.');
+    button.click();
+    debugLog(config, 'Hidden submit click dispatched.');
+}
