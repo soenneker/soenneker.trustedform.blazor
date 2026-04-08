@@ -16,7 +16,7 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
     private readonly CancellationScope _cancellationScope = new();
     private bool _isRecording;
 
-    private const string _modulePath = "/_content/Soenneker.TrustedForm.Blazor/js/trustedforminterop.js";
+    private const string _modulePath = "_content/Soenneker.TrustedForm.Blazor/js/trustedforminterop.js";
 
     public TrustedFormInterop(IModuleImportUtil moduleImportUtil)
     {
