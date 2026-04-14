@@ -17,7 +17,6 @@ env:
 permissions:
   actions: read
   contents: read
-  security-events: write
 
 jobs:
   analyze:
@@ -35,19 +34,32 @@ jobs:
         with:
           dotnet-version: '10.x'
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
-        with:
-          languages: csharp
-          build-mode: manual
+      - name: Setup CodeQL CLI
+        run: |
+          curl -L https://github.com/github/codeql-action/releases/latest/download/codeql-bundle-linux64.tar.gz -o codeql.tar.gz
+          tar -xzf codeql.tar.gz
+          echo "$PWD/codeql" >> $GITHUB_PATH
 
-      - name: Restore src
-        run: dotnet restore ./src/Soenneker.TrustedForm.Blazor/Soenneker.TrustedForm.Blazor.csproj --verbosity minimal
+      - name: Create CodeQL database
+        run: |
+          codeql database create codeql-db \
+            --language=csharp \
+            --command="dotnet build ./src/Soenneker.TrustedForm.Blazor/Soenneker.TrustedForm.Blazor.csproj --configuration Release"
 
-      - name: Build src
-        run: dotnet build ./src/Soenneker.TrustedForm.Blazor/Soenneker.TrustedForm.Blazor.csproj --configuration Release --no-restore --verbosity minimal
+      - name: Run CodeQL analysis
+        run: |
+          codeql database analyze codeql-db \
+            codeql/csharp-queries \
+            --format=sarifv2.1.0 \
+            --output=results.sarif
 
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
-        with:
-          token: ${{ secrets.CODEQL_PAT }}
+      - name: Upload SARIF with PAT
+        env:
+          CODEQL_PAT: ${{ secrets.CODEQL_PAT }}
+        run: |
+          echo "$CODEQL_PAT" | codeql github upload-results \
+            --repository ${{ github.repository }} \
+            --ref ${{ github.ref }} \
+            --commit ${{ github.sha }} \
+            --sarif results.sarif \
+            --github-auth-stdin
