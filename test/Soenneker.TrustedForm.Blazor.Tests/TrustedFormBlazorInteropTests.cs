@@ -1,20 +1,19 @@
-﻿using Soenneker.TrustedForm.Blazor.Abstract;
-using Soenneker.Tests.FixturedUnit;
-using Xunit;
+using Soenneker.TrustedForm.Blazor.Abstract;
+using Soenneker.Tests.HostedUnit;
 
 namespace Soenneker.TrustedForm.Blazor.Tests;
 
-[Collection("Collection")]
-public sealed class TrustedFormBlazorInteropTests : FixturedUnitTest
+[ClassDataSource<Host>(Shared = SharedType.PerTestSession)]
+public sealed class TrustedFormBlazorInteropTests : HostedUnitTest
 {
     private readonly ITrustedFormInterop _blazorlibrary;
 
-    public TrustedFormBlazorInteropTests(Fixture fixture, ITestOutputHelper output) : base(fixture, output)
+    public TrustedFormBlazorInteropTests(Host host) : base(host)
     {
         _blazorlibrary = Resolve<ITrustedFormInterop>(true);
     }
 
-    [Fact]
+    [Test]
     public void Default()
     {
 
