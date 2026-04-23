@@ -31,14 +31,14 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - name: Restore tests
-        run: dotnet restore test/Soenneker.TrustedForm.Blazor.Demo/Soenneker.TrustedForm.Blazor.Demo.csproj --verbosity minimal
+      - name: Restore
+        run: dotnet restore Soenneker.TrustedForm.Blazor.slnx --verbosity minimal
 
-      - name: Build tests
-        run: dotnet build test/Soenneker.TrustedForm.Blazor.Demo/Soenneker.TrustedForm.Blazor.Demo.csproj --configuration Release --no-restore --verbosity minimal
+      - name: Build
+        run: dotnet build Soenneker.TrustedForm.Blazor.slnx --configuration Release --no-restore --verbosity minimal
 
       - name: Test
-        run: dotnet test --project test/Soenneker.TrustedForm.Blazor.Demo/Soenneker.TrustedForm.Blazor.Demo.csproj --configuration Release --no-build --no-restore --verbosity minimal
+        run: dotnet test --project test/Soenneker.TrustedForm.Blazor.Tests/Soenneker.TrustedForm.Blazor.Tests.csproj --configuration Release --no-build --no-restore --verbosity minimal
 
       - name: Pack
         run: dotnet pack src/Soenneker.TrustedForm.Blazor/Soenneker.TrustedForm.Blazor.csproj --configuration Release --no-build --no-restore --output . --verbosity minimal
