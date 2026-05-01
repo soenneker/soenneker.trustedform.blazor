@@ -9,10 +9,10 @@
 
 @inject ITrustedFormInterop TrustedFormInterop
 
-@inherits Soenneker.Quark.CoreCancellableElement
+@inherits Soenneker.Lepton.Suite.LeptonCancellableIdentifiableContentElement
 @implements ITrustedForm
 
-<div id="@Id" @attributes="Attributes">
+<div @attributes="EffectiveAttributes">
     @if (Configuration.IncludeForm)
     {
         <EditForm EditContext="@_ctx" OnSubmit="OnSubmit" id="@(Id + "-form")">

@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Components;
 using System.Threading;
 using System.Threading.Tasks;
-using Soenneker.Quark;
+using Soenneker.Lepton.Suite.Abstract;
 
 namespace Soenneker.TrustedForm.Blazor.Abstract;
 
 /// <summary>
 /// Represents the TrustedForm Blazor component with full interop functionality.
 /// </summary>
-public interface ITrustedForm : ICoreCancellableElement
+public interface ITrustedForm : ILeptonCancellableIdentifiableContentElement
 {
     /// <summary>
     /// Invoked when the TrustedForm widget is ready.
