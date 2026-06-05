@@ -20,6 +20,11 @@ public interface ITrustedForm : ILeptonCancellableIdentifiableContentElement
     /// </summary>
     Task OnLoadCallback();
 
+    /// <summary>
+    /// Gets cert url.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task containing the result of the operation.</returns>
     ValueTask<string?> GetCertUrl(CancellationToken cancellationToken = default);
 
     /// <summary>
