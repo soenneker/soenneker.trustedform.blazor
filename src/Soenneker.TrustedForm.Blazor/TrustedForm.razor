@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.JSInterop
 @using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Blazor.Utils.Ids
 @using Soenneker.Dtos.ProblemDetails
 @using Soenneker.Extensions.CancellationTokens
 @using Soenneker.TrustedForm.Blazor.Abstract
@@ -15,9 +16,9 @@
 <div @attributes="EffectiveAttributes">
     @if (Configuration.IncludeForm)
     {
-        <EditForm EditContext="@_ctx" OnSubmit="OnSubmit" id="@(Id + "-form")">
+        <EditForm EditContext="@_ctx" OnSubmit="OnSubmit" id="@BlazorIdGenerator.Child(Id!, "form")">
             @ChildContent
-            <button id="@(Id + "-submit")" type="submit" style="display:none"></button>
+            <button id="@BlazorIdGenerator.Child(Id!, "submit")" type="submit" style="display:none"></button>
         </EditForm>
     }
     else
@@ -28,8 +29,6 @@
 
 @code {
     private DotNetObjectReference<TrustedForm>? _dotNetReference;
-
-    private readonly string _elementGuid;
 
     private bool _initialized;
     private bool _isCreated;
@@ -59,15 +58,14 @@
 
     public TrustedForm()
     {
-        _elementGuid = Guid.NewGuid().ToString();
-        Id = $"trustedform-{_elementGuid}";
+        Id = BlazorIdGenerator.New("trustedform");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && !_isCreated)
         {
-            Configuration.Field ??= $"trustedform-field-{_elementGuid}";
+            Configuration.Field ??= BlazorIdGenerator.Child(Id!, "field");
 
             await Create(CancellationToken);
         }
