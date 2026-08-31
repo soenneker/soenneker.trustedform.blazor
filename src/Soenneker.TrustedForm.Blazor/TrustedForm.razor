@@ -85,6 +85,12 @@
             await SetProblemDetails(null);
             _isCreated = true;
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            _initialized = false;
+            _isCreated = false;
+            throw;
+        }
         catch (Exception ex)
         {
             _initialized = false;

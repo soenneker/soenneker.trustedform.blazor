@@ -6,7 +6,7 @@ using Soenneker.TrustedForm.Blazor.Abstract;
 namespace Soenneker.TrustedForm.Blazor.Registrars;
 
 /// <summary>
-/// A Blazor interop library for ActiveProspect TrustedForm
+/// Registers TrustedForm browser interoperability for Blazor.
 /// </summary>
 public static class TrustedFormInteropRegistrar
 {

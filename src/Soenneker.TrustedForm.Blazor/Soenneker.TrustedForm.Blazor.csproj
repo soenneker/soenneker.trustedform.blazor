@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Description>A Blazor interop library for ActiveProspect TrustedForm</Description>
+        <Description>Loads ActiveProspect TrustedForm in Blazor and exposes recording, certificate URL, and finalization controls.</Description>
         <Version Condition="'$(BUILD_VERSION)' == ''">4.0.0</Version>
         <Version Condition="'$(BUILD_VERSION)' != ''">$(BUILD_VERSION)</Version>
         <AssemblyName>Soenneker.TrustedForm.Blazor</AssemblyName>

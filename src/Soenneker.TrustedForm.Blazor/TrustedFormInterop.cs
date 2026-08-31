@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 
 namespace Soenneker.TrustedForm.Blazor;
 
-/// <inheritdoc cref="ITrustedFormInterop"/>
 public sealed class TrustedFormInterop : ITrustedFormInterop
 {
     private readonly IModuleImportUtil _moduleImportUtil;
