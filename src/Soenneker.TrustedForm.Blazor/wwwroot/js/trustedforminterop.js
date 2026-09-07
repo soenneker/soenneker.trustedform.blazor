@@ -89,10 +89,13 @@ export function createObserver(elementId) {
     }
 
     const observer = new MutationObserver(mutations => {
-        const removed = mutations.some(mutation => Array.from(mutation.removedNodes).includes(target));
-
-        if (removed) {
-            removeInstance(elementId);
+        for (const mutation of mutations) {
+            for (const node of mutation.removedNodes) {
+                if (node === target) {
+                    removeInstance(elementId);
+                    return;
+                }
+            }
         }
     });
 
