@@ -11,10 +11,12 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.12" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.12" PrivateAssets="all" />
         <PackageReference Include="Soenneker.Serilog.Sinks.Browser.Blazor" Version="4.0.408" />
-        <PackageReference Include="Soenneker.Utils.AutoBogus" Version="4.0.964" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Soenneker.TrustedForm.Blazor\Soenneker.TrustedForm.Blazor.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.12" />
     </ItemGroup>
 </Project>
