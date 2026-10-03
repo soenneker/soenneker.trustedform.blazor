@@ -16,7 +16,7 @@
 <div @attributes="EffectiveAttributes">
     @if (Configuration.IncludeForm)
     {
-        <EditForm EditContext="@_ctx" OnSubmit="OnSubmit" id="@BlazorIdGenerator.Child(Id!, "form")">
+        <EditForm EditContext="@(_ctx ??= new(new object()))" OnSubmit="OnSubmit" id="@BlazorIdGenerator.Child(Id!, "form")">
             @ChildContent
             <button id="@BlazorIdGenerator.Child(Id!, "submit")" type="submit" style="display:none"></button>
         </EditForm>
@@ -33,7 +33,7 @@
     private bool _initialized;
     private bool _isCreated;
     
-    private readonly EditContext _ctx = new(new object());
+    private EditContext? _ctx;
     private static Task OnSubmit() => Task.CompletedTask;
 
     [Parameter]
@@ -159,12 +159,22 @@
 
     public override async ValueTask DisposeAsync()
     {
-        await base.DisposeAsync();
-
-        _initialized = false;
-        _isCreated = false;
-
-        _dotNetReference?.Dispose();
+        try
+        {
+            if (_initialized)
+                await TrustedFormInterop.RemoveInstance(Id!);
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+        finally
+        {
+            _initialized = false;
+            _isCreated = false;
+            _dotNetReference?.Dispose();
+            _dotNetReference = null;
+            await base.DisposeAsync();
+        }
     }
 
     private async ValueTask SetProblemDetails(ProblemDetailsDto? details)

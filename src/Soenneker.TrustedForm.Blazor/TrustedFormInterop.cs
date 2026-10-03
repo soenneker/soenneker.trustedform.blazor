@@ -16,7 +16,7 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
     private readonly CancellationScope _cancellationScope = new();
     private bool _isRecording;
 
-    private const string _modulePath = "_content/Soenneker.TrustedForm.Blazor/js/trustedforminterop.js";
+    private const string _modulePath = "./_content/Soenneker.TrustedForm.Blazor/js/trustedforminterop.js";
 
     public TrustedFormInterop(IModuleImportUtil moduleImportUtil)
     {
@@ -33,6 +33,12 @@ public sealed class TrustedFormInterop : ITrustedFormInterop
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("init", linked, elementId, configuration, dotNetCallback);
         }
+    }
+
+    public async ValueTask RemoveInstance(string elementId, CancellationToken cancellationToken = default)
+    {
+        IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, cancellationToken);
+        await module.InvokeVoidAsync("removeInstance", cancellationToken, elementId);
     }
 
     public async ValueTask CreateObserver(string elementId, CancellationToken cancellationToken = default)

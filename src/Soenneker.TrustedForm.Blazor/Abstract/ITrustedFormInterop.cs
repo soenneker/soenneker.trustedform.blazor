@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
@@ -16,6 +16,9 @@ public interface ITrustedFormInterop : IAsyncDisposable
     /// </summary>
     ValueTask Init(string elementId, TrustedFormConfiguration configuration, DotNetObjectReference<TrustedForm> dotNetCallback,
         CancellationToken cancellationToken = default);
+
+    /// <summary>Releases the observer and callback associated with a form instance.</summary>
+    ValueTask RemoveInstance(string elementId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Creates a MutationObserver to monitor DOM changes for the TrustedForm widget.

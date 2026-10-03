@@ -16,7 +16,7 @@ function removeTrustedFormScript() {
     }
 }
 
-function removeInstance(elementId) {
+export function removeInstance(elementId) {
     const instance = instances[elementId];
 
     if (!instance) {
@@ -66,27 +66,40 @@ export async function init(elementId, configuration, dotNetCallback) {
         return;
     }
 
-    await loadTrustedFormScript(configuration);
-
-    instances[elementId] = {
+    const instance = {
         configuration,
         dotNetCallback,
         fieldId: configuration.field,
-        isLoaded: true,
+        isLoaded: false,
         observer: null
     };
+    instances[elementId] = instance;
 
-    if (dotNetCallback) {
-        await dotNetCallback.invokeMethodAsync('OnLoadCallback');
+    try {
+        await loadTrustedFormScript(configuration);
+        if (instances[elementId] !== instance)
+            return;
+        instance.isLoaded = true;
+        if (dotNetCallback)
+            await dotNetCallback.invokeMethodAsync('OnLoadCallback');
+    } catch (error) {
+        if (instances[elementId] === instance)
+            removeInstance(elementId);
+        throw error;
     }
 }
 
 export function createObserver(elementId) {
+    if (!instances[elementId])
+        return null;
+
     const target = document.getElementById(elementId);
 
     if (!target || !target.parentNode) {
         return null;
     }
+
+    instances[elementId]?.observer?.disconnect();
 
     const observer = new MutationObserver(mutations => {
         for (const mutation of mutations) {
