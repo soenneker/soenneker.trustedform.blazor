@@ -197,7 +197,6 @@
         {
             await _trustedFormRef.Stop();
             _trustedFormStopped = true;
-            StateHasChanged();
         }
     }
 
@@ -207,7 +206,6 @@
         {
             await _trustedFormRef.StartIfNotRunning();
             _trustedFormStopped = false;
-            StateHasChanged();
         }
     }
 
@@ -217,7 +215,6 @@
         _certUrl = null;
         _trustedFormStopped = false;
         _trustedFormFinalized = false;
-        StateHasChanged();
     }
 
     private async Task GetCertUrl()
@@ -225,7 +222,6 @@
         if (_trustedFormRef is not null)
         {
             _certUrl = await _trustedFormRef.GetCertUrl();
-            StateHasChanged();
         }
     }
 
@@ -235,7 +231,6 @@
         {
             await _trustedFormRef.Finalize();
             _trustedFormFinalized = true;
-            StateHasChanged();
         }
     }
 }

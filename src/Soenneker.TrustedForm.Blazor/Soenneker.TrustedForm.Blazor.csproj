@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
     <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
+        <TargetFramework>net11.0</TargetFramework>
         <IsAotCompatible>true</IsAotCompatible>
         <Nullable>enable</Nullable>
         <Platforms>AnyCPU</Platforms>
@@ -9,7 +9,7 @@
 
     <PropertyGroup>
         <Description>Loads ActiveProspect TrustedForm in Blazor and exposes recording, certificate URL, and finalization controls.</Description>
-        <Version Condition="'$(BUILD_VERSION)' == ''">4.0.0</Version>
+        <Version Condition="'$(BUILD_VERSION)' == ''">11.0.0</Version>
         <Version Condition="'$(BUILD_VERSION)' != ''">$(BUILD_VERSION)</Version>
         <AssemblyName>Soenneker.TrustedForm.Blazor</AssemblyName>
         <PackageId>Soenneker.TrustedForm.Blazor</PackageId>
@@ -45,10 +45,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.13" />
-        <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="4.0.472" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="11.0.0-rc.3.26522.148" />
+        <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="4.0.473" />
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1792" />
-        <PackageReference Include="Soenneker.Dtos.ProblemDetails" Version="4.0.479" />
-        <PackageReference Include="Soenneker.Lepton.Suite" Version="4.0.128" />
+        <PackageReference Include="Soenneker.Dtos.ProblemDetails" Version="4.0.480" />
+        <PackageReference Include="Soenneker.Lepton.Suite" Version="11.0.130" />
     </ItemGroup>
 </Project>
