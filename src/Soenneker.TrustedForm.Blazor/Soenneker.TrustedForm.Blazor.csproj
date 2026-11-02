@@ -5,6 +5,8 @@
         <Nullable>enable</Nullable>
         <Platforms>AnyCPU</Platforms>
         <NoWarn>$(NoWarn);1591</NoWarn>
+        <WebMinifierFolders>wwwroot/js</WebMinifierFolders>
+        <WebMinifierCssEnabled>false</WebMinifierCssEnabled>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -50,5 +52,8 @@
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="11.0.1800" />
         <PackageReference Include="Soenneker.Dtos.ProblemDetails" Version="11.0.483" />
         <PackageReference Include="Soenneker.Lepton.Suite" Version="11.0.133" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Soenneker.Gen.Web.Minifier" Version="11.0.43" PrivateAssets="all" />
     </ItemGroup>
 </Project>
