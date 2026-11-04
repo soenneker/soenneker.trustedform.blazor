@@ -49,11 +49,11 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="11.0.0-rc.3.26522.148" />
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="11.0.474" />
-        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="11.0.1819" />
+        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="11.0.1821" />
         <PackageReference Include="Soenneker.Dtos.ProblemDetails" Version="11.0.483" />
         <PackageReference Include="Soenneker.Lepton.Suite" Version="11.0.136" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Soenneker.Gen.Web.Minifier" Version="11.0.54" PrivateAssets="all" />
+        <PackageReference Include="Soenneker.Gen.Web.Minifier" Version="11.0.55" PrivateAssets="all" />
     </ItemGroup>
 </Project>
