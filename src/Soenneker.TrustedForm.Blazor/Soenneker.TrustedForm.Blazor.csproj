@@ -54,6 +54,6 @@
         <PackageReference Include="Soenneker.Lepton.Suite" Version="11.0.148" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Soenneker.Gen.Web.Minifier" Version="11.0.79" PrivateAssets="all" />
+        <PackageReference Include="Soenneker.Gen.Web.Minifier" Version="11.0.80" PrivateAssets="all" />
     </ItemGroup>
 </Project>
