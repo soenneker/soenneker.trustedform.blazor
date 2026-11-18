@@ -51,9 +51,9 @@
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="11.0.477" />
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="11.0.1849" />
         <PackageReference Include="Soenneker.Dtos.ProblemDetails" Version="11.0.486" />
-        <PackageReference Include="Soenneker.Lepton.Suite" Version="11.0.146" />
+        <PackageReference Include="Soenneker.Lepton.Suite" Version="11.0.148" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Soenneker.Gen.Web.Minifier" Version="11.0.77" PrivateAssets="all" />
+        <PackageReference Include="Soenneker.Gen.Web.Minifier" Version="11.0.79" PrivateAssets="all" />
     </ItemGroup>
 </Project>
